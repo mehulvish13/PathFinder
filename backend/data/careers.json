@@ -1,0 +1,27 @@
+[
+  {
+    "id": "genai_engineer",
+    "name": "GenAI Engineer",
+    "description": "Builds AI applications using large language models, retrieval systems, agents and modern AI engineering practices."
+  },
+  {
+    "id": "ai_engineer",
+    "name": "AI Engineer",
+    "description": "Designs and develops AI-powered software systems using machine learning and modern AI technologies."
+  },
+  {
+    "id": "ml_engineer",
+    "name": "ML Engineer",
+    "description": "Builds, evaluates and deploys machine learning systems."
+  },
+  {
+    "id": "data_scientist",
+    "name": "Data Scientist",
+    "description": "Uses statistics, machine learning and data analysis to solve business and analytical problems."
+  },
+  {
+    "id": "backend_developer",
+    "name": "Backend Developer",
+    "description": "Builds scalable APIs, services and backend systems."
+  }
+]

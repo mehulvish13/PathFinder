@@ -1,0 +1,262 @@
+[
+  {
+    "skill_id": "python_oop",
+    "prerequisite_skill_id": "python",
+    "type": "hard"
+  },
+  {
+    "skill_id": "data_structures",
+    "prerequisite_skill_id": "python",
+    "type": "hard"
+  },
+  {
+    "skill_id": "algorithms",
+    "prerequisite_skill_id": "data_structures",
+    "type": "hard"
+  },
+  {
+    "skill_id": "machine_learning",
+    "prerequisite_skill_id": "statistics",
+    "type": "soft"
+  },
+  {
+    "skill_id": "machine_learning",
+    "prerequisite_skill_id": "probability",
+    "type": "soft"
+  },
+  {
+    "skill_id": "machine_learning",
+    "prerequisite_skill_id": "linear_algebra",
+    "type": "soft"
+  },
+  {
+    "skill_id": "model_evaluation",
+    "prerequisite_skill_id": "machine_learning",
+    "type": "hard"
+  },
+  {
+    "skill_id": "neural_networks",
+    "prerequisite_skill_id": "machine_learning",
+    "type": "hard"
+  },
+  {
+    "skill_id": "backpropagation",
+    "prerequisite_skill_id": "neural_networks",
+    "type": "hard"
+  },
+  {
+    "skill_id": "pytorch",
+    "prerequisite_skill_id": "neural_networks",
+    "type": "hard"
+  },
+  {
+    "skill_id": "tensorflow",
+    "prerequisite_skill_id": "neural_networks",
+    "type": "hard"
+  },
+  {
+    "skill_id": "attention",
+    "prerequisite_skill_id": "neural_networks",
+    "type": "hard"
+  },
+  {
+    "skill_id": "transformers",
+    "prerequisite_skill_id": "attention",
+    "type": "hard"
+  },
+  {
+    "skill_id": "llm_fundamentals",
+    "prerequisite_skill_id": "transformers",
+    "type": "soft"
+  },
+  {
+    "skill_id": "prompt_engineering",
+    "prerequisite_skill_id": "llm_fundamentals",
+    "type": "hard"
+  },
+  {
+    "skill_id": "structured_outputs",
+    "prerequisite_skill_id": "llm_apis",
+    "type": "hard"
+  },
+  {
+    "skill_id": "function_calling",
+    "prerequisite_skill_id": "llm_apis",
+    "type": "hard"
+  },
+  {
+    "skill_id": "llm_apis",
+    "prerequisite_skill_id": "llm_fundamentals",
+    "type": "hard"
+  },
+  {
+    "skill_id": "embeddings",
+    "prerequisite_skill_id": "llm_fundamentals",
+    "type": "soft"
+  },
+  {
+    "skill_id": "semantic_similarity",
+    "prerequisite_skill_id": "embeddings",
+    "type": "hard"
+  },
+  {
+    "skill_id": "vector_databases",
+    "prerequisite_skill_id": "embeddings",
+    "type": "hard"
+  },
+  {
+    "skill_id": "vector_search",
+    "prerequisite_skill_id": "vector_databases",
+    "type": "hard"
+  },
+  {
+    "skill_id": "chunking",
+    "prerequisite_skill_id": "embeddings",
+    "type": "hard"
+  },
+  {
+    "skill_id": "metadata_filtering",
+    "prerequisite_skill_id": "vector_databases",
+    "type": "soft"
+  },
+  {
+    "skill_id": "document_ingestion",
+    "prerequisite_skill_id": "chunking",
+    "type": "hard"
+  },
+  {
+    "skill_id": "retrieval",
+    "prerequisite_skill_id": "vector_search",
+    "type": "hard"
+  },
+  {
+    "skill_id": "retrieval",
+    "prerequisite_skill_id": "document_ingestion",
+    "type": "hard"
+  },
+  {
+    "skill_id": "rag_fundamentals",
+    "prerequisite_skill_id": "retrieval",
+    "type": "hard"
+  },
+  {
+    "skill_id": "rag_fundamentals",
+    "prerequisite_skill_id": "llm_fundamentals",
+    "type": "hard"
+  },
+  {
+    "skill_id": "reranking",
+    "prerequisite_skill_id": "retrieval",
+    "type": "hard"
+  },
+  {
+    "skill_id": "rag_evaluation",
+    "prerequisite_skill_id": "rag_fundamentals",
+    "type": "hard"
+  },
+  {
+    "skill_id": "hybrid_search",
+    "prerequisite_skill_id": "vector_search",
+    "type": "soft"
+  },
+  {
+    "skill_id": "tool_calling",
+    "prerequisite_skill_id": "function_calling",
+    "type": "hard"
+  },
+  {
+    "skill_id": "react_agents",
+    "prerequisite_skill_id": "tool_calling",
+    "type": "hard"
+  },
+  {
+    "skill_id": "agent_memory",
+    "prerequisite_skill_id": "ai_agents",
+    "type": "soft"
+  },
+  {
+    "skill_id": "ai_agents",
+    "prerequisite_skill_id": "llm_fundamentals",
+    "type": "hard"
+  },
+  {
+    "skill_id": "ai_agents",
+    "prerequisite_skill_id": "tool_calling",
+    "type": "hard"
+  },
+  {
+    "skill_id": "multi_step_workflows",
+    "prerequisite_skill_id": "ai_agents",
+    "type": "hard"
+  },
+  {
+    "skill_id": "agent_evaluation",
+    "prerequisite_skill_id": "ai_agents",
+    "type": "soft"
+  },
+  {
+    "skill_id": "fastapi",
+    "prerequisite_skill_id": "python",
+    "type": "hard"
+  },
+  {
+    "skill_id": "backend_architecture",
+    "prerequisite_skill_id": "fastapi",
+    "type": "soft"
+  },
+  {
+    "skill_id": "async_programming",
+    "prerequisite_skill_id": "fastapi",
+    "type": "soft"
+  },
+  {
+    "skill_id": "docker",
+    "prerequisite_skill_id": "backend_architecture",
+    "type": "soft"
+  },
+  {
+    "skill_id": "cloud_deployment",
+    "prerequisite_skill_id": "docker",
+    "type": "soft"
+  },
+  {
+    "skill_id": "logging_monitoring",
+    "prerequisite_skill_id": "cloud_deployment",
+    "type": "soft"
+  },
+  {
+    "skill_id": "mlops",
+    "prerequisite_skill_id": "cloud_deployment",
+    "type": "soft"
+  },
+  {
+    "skill_id": "ai_system_design",
+    "prerequisite_skill_id": "backend_architecture",
+    "type": "soft"
+  },
+  {
+    "skill_id": "production_ai",
+    "prerequisite_skill_id": "ai_system_design",
+    "type": "soft"
+  },
+  {
+    "skill_id": "capstone_project",
+    "prerequisite_skill_id": "rag_fundamentals",
+    "type": "soft"
+  },
+  {
+    "skill_id": "capstone_project",
+    "prerequisite_skill_id": "ai_agents",
+    "type": "soft"
+  },
+  {
+    "skill_id": "capstone_project",
+    "prerequisite_skill_id": "fastapi",
+    "type": "soft"
+  },
+  {
+    "skill_id": "technical_documentation",
+    "prerequisite_skill_id": "capstone_project",
+    "type": "soft"
+  }
+]

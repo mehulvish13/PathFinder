@@ -1,0 +1,158 @@
+[
+  {
+    "career_id": "genai_engineer",
+    "skill_id": "python",
+    "required_mastery": 70,
+    "importance": "high"
+  },
+  {
+    "career_id": "genai_engineer",
+    "skill_id": "machine_learning",
+    "required_mastery": 60,
+    "importance": "high"
+  },
+  {
+    "career_id": "genai_engineer",
+    "skill_id": "neural_networks",
+    "required_mastery": 55,
+    "importance": "medium"
+  },
+  {
+    "career_id": "genai_engineer",
+    "skill_id": "transformers",
+    "required_mastery": 60,
+    "importance": "high"
+  },
+  {
+    "career_id": "genai_engineer",
+    "skill_id": "llm_fundamentals",
+    "required_mastery": 75,
+    "importance": "critical"
+  },
+  {
+    "career_id": "genai_engineer",
+    "skill_id": "prompt_engineering",
+    "required_mastery": 70,
+    "importance": "high"
+  },
+  {
+    "career_id": "genai_engineer",
+    "skill_id": "structured_outputs",
+    "required_mastery": 60,
+    "importance": "medium"
+  },
+  {
+    "career_id": "genai_engineer",
+    "skill_id": "llm_apis",
+    "required_mastery": 70,
+    "importance": "high"
+  },
+  {
+    "career_id": "genai_engineer",
+    "skill_id": "embeddings",
+    "required_mastery": 65,
+    "importance": "critical"
+  },
+  {
+    "career_id": "genai_engineer",
+    "skill_id": "vector_databases",
+    "required_mastery": 65,
+    "importance": "critical"
+  },
+  {
+    "career_id": "genai_engineer",
+    "skill_id": "vector_search",
+    "required_mastery": 60,
+    "importance": "high"
+  },
+  {
+    "career_id": "genai_engineer",
+    "skill_id": "chunking",
+    "required_mastery": 60,
+    "importance": "high"
+  },
+  {
+    "career_id": "genai_engineer",
+    "skill_id": "rag_fundamentals",
+    "required_mastery": 75,
+    "importance": "critical"
+  },
+  {
+    "career_id": "genai_engineer",
+    "skill_id": "retrieval",
+    "required_mastery": 65,
+    "importance": "high"
+  },
+  {
+    "career_id": "genai_engineer",
+    "skill_id": "rag_evaluation",
+    "required_mastery": 55,
+    "importance": "medium"
+  },
+  {
+    "career_id": "genai_engineer",
+    "skill_id": "function_calling",
+    "required_mastery": 65,
+    "importance": "high"
+  },
+  {
+    "career_id": "genai_engineer",
+    "skill_id": "tool_calling",
+    "required_mastery": 65,
+    "importance": "high"
+  },
+  {
+    "career_id": "genai_engineer",
+    "skill_id": "ai_agents",
+    "required_mastery": 70,
+    "importance": "critical"
+  },
+  {
+    "career_id": "genai_engineer",
+    "skill_id": "react_agents",
+    "required_mastery": 60,
+    "importance": "medium"
+  },
+  {
+    "career_id": "genai_engineer",
+    "skill_id": "fastapi",
+    "required_mastery": 65,
+    "importance": "high"
+  },
+  {
+    "career_id": "genai_engineer",
+    "skill_id": "backend_architecture",
+    "required_mastery": 55,
+    "importance": "medium"
+  },
+  {
+    "career_id": "genai_engineer",
+    "skill_id": "docker",
+    "required_mastery": 50,
+    "importance": "medium"
+  },
+  {
+    "career_id": "genai_engineer",
+    "skill_id": "cloud_deployment",
+    "required_mastery": 50,
+    "importance": "medium"
+  },
+  {
+    "career_id": "genai_engineer",
+    "skill_id": "ai_system_design",
+    "required_mastery": 60,
+    "importance": "high"
+  },
+  {
+    "career_id": "genai_engineer",
+    "skill_id": "production_ai",
+    "required_mastery": 50,
+    "importance": "medium"
+  },
+  {
+    "career_id": "genai_engineer",
+    "skill_id": "capstone_project",
+    "required_mastery": 70,
+    "importance": "critical"
+  }
+]
