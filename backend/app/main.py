@@ -9,6 +9,7 @@ from app.models import (
     CareerSkill,
     Prerequisite,
 )
+from app.api.routes.path import router as path_router
 
 Base.metadata.create_all(bind=engine)
 
@@ -17,6 +18,8 @@ app = FastAPI(
     description="AI-Powered Personalized Learning Path Recommender",
     version="0.1.0"
 )
+
+app.include_router(path_router)
 
 
 @app.get("/")

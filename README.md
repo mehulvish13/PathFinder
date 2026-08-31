@@ -2,6 +2,21 @@
 
 AI-Powered Personalized Learning Path Recommender
 
+## 🟢 COMMIT 2 - Core Engine Ready
+
+**Status**: Skill Gap Engine + Learning Path Generator ✅ Complete
+
+**Endpoint**: `POST /api/path/generate` - Returns skill gaps, recommendations, and personalized learning path
+
+**Ready to commit**:
+```bash
+git add .
+git commit -m "feat: implement skill gap and learning path engine"
+git push
+```
+
+---
+
 ## Quick Start
 
 Run the server:
@@ -47,6 +62,67 @@ Database / AI / Skills
 - prerequisites
 
 ## Skill Domains (Phase 1C)
+
+### Phase 1D - Intelligence Services (Added)
+
+- **Skill Gap Engine**: Calculates gaps between learner mastery and career requirements with priority scoring
+  - Formula: `gap = required mastery - current mastery`
+  - Priority: `priority = gap × importance weight`
+  - Importance weights: critical=1.0, high=0.85, medium=0.65, low=0.40
+
+- **Recommendation Engine**: Provides personalized skill recommendations considering prerequisites
+  - Takes skill gaps and prerequisite chains into account
+  - Sequences skills based on dependencies
+
+- **Learning Path Generator**: Creates personalized learning roadmaps
+  - Respects prerequisite dependencies
+  - Organizes path into phases based on dependency levels
+  - Outputs sequential learning path with status (ready/blocked)
+
+### STEP 10: Test it ✅
+
+API endpoint verified at `http://127.0.0.1:8000`:
+
+- **Endpoint**: `POST /api/path/generate`
+- **Response contains**: `skill_gaps`, `recommendations`, `learning_path`
+- **Test request** includes `current_skills`, `career_requirements`, `prerequisites`
+
+### 🚨 Important Architectural Point
+
+The core PathFinder implementation follows a **hybrid architecture**:
+
+```
+Deterministic Algorithm
+       +
+Knowledge Graph
+       +
+Learner Data
+       +
+LLM
+```
+
+not:
+
+```
+Everything → LLM → hope it gives the right answer
+```
+
+**Why this matters**:
+
+- **Deterministic algorithm** handles: skill gaps, prerequisite checking, priority scoring, sequencing, progress tracking
+- **Knowledge graph** maps prerequisite relationships (e.g., Embeddings → Vector Database → Vector Search → Retrieval → RAG)
+- **Learner data** provides current mastery levels against career requirements
+- **LLM** is reserved for: natural language goal understanding, profile extraction, conversational assistant, explanation generation
+
+This modular design ensures:
+- Reliable, predictable results from the core algorithm
+- Easy explanation to judges what each component handles
+- Future enhancement path: LLM can be added for NL understanding without breaking core logic
+- Clear separation of concerns: algorithm handles the "what", LLM handles the "how" in natural language
+
+### API Endpoints
+
+- `GET /api/path/generate` - Generates complete learning path from current skills and career goals
 
 1. Programming Foundations
 2. Mathematics & ML Foundations
@@ -210,3 +286,37 @@ Output: Skill Gaps with points
 - RAG = 75 point gap
 
 Then prerequisites are respected to produce the first real personalized learning sequence.
+
+---
+
+## 🔮 What Comes After Commit 2
+
+The full PathFinder application will be built in layers:
+
+```
+              USER
+                ↓
+    Natural language goal
+                ↓
+  AI Goal Understanding (LLM)
+                ↓
+    Learner Profile
+                ↓
+  Skill Gap Engine ✅ (Commit 2)
+                ↓
+Recommendation Engine ✅ (Commit 2)
+                ↓
+  Personalized Path ✅ (Commit 2)
+                ↓
+  Resources + Projects
+                ↓
+  Progress Tracking
+                ↓
+  Adaptive Updates
+                ↓
+   AI Assistant (LLM)
+```
+
+**Current State**: Layers 4-6 are complete
+**Next Step**: Build Learner Profile layer (Layer 3)
+**Focus**: Get `/api/path/generate` working with real data first before adding more layers
