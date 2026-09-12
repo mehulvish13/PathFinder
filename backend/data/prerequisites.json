@@ -258,5 +258,19 @@
     "skill_id": "technical_documentation",
     "prerequisite_skill_id": "capstone_project",
     "type": "soft"
-  }
+  },
+
+  {"skill_id": "pandas", "prerequisite_skill_id": "python", "type": "hard"},
+  {"skill_id": "numpy", "prerequisite_skill_id": "python", "type": "hard"},
+  {"skill_id": "data_cleaning", "prerequisite_skill_id": "pandas", "type": "hard"},
+  {"skill_id": "data_analysis", "prerequisite_skill_id": "pandas", "type": "hard"},
+  {"skill_id": "data_visualization", "prerequisite_skill_id": "data_analysis", "type": "soft"},
+  {"skill_id": "scikit_learn", "prerequisite_skill_id": "python", "type": "hard"},
+  {"skill_id": "scikit_learn", "prerequisite_skill_id": "machine_learning", "type": "soft"},
+  {"skill_id": "supervised_learning", "prerequisite_skill_id": "machine_learning", "type": "hard"},
+  {"skill_id": "unsupervised_learning", "prerequisite_skill_id": "machine_learning", "type": "hard"},
+  {"skill_id": "databases", "prerequisite_skill_id": "sql", "type": "hard"},
+  {"skill_id": "rest_api", "prerequisite_skill_id": "python", "type": "soft"},
+  {"skill_id": "authentication", "prerequisite_skill_id": "rest_api", "type": "hard"},
+  {"skill_id": "testing", "prerequisite_skill_id": "rest_api", "type": "soft"}
 ]

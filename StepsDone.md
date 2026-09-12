@@ -1,22 +1,27 @@
 # Steps Done - PathFinder Backend Foundation
 
-## 🟢 COMMIT 2 - Ready to Push
+## 🟢 COMMIT 3 - Canonical Knowledge Base + AI Learner Profiling — Ready to Push
 
-**Endpoint Verified**: `/api/path/generate` successfully returns:
-- ✅ Skill gaps (with priority scoring)
-- ✅ Recommendations (with prerequisite checking)
-- ✅ Learning path (personalized sequence)
+**Endpoints Verified (2026-09-12)**:
+- ✅ `POST /api/profile/extract` — AI extraction (Gemini) — GenAI/DataSci/Backend all 200, Sparse `skills: []` no hallucination
+- ✅ `POST /api/profile/create` — Learner profile validated (Pydantic 0..100, float)
+- ✅ `POST /api/path/generate` — Skill gaps + recommendations + learning path
 
-**Make the commit**:
+**Make the commit (scoped — don't add LICENSE/README noise)**:
 ```bash
-git add .
-git commit -m "feat: implement skill gap and learning path engine"
+git add backend/app/schemas/profile.py backend/app/api/routes/profile.py backend/app/services/ai/llm_service.py backend/app/data_loader.py backend/data/skills_catalog.json backend/data/career_skills.json backend/data/prerequisites.json backend/docs/INTERVIEW_PREP_COMMIT3.md README.md StepsDone.md Phase_2A_Learner_Profile.md Projectdocs(PR)/README.md
+# also:
+# git add PATHFINDER_PROJECT_OVERVIEW.md Projectdocs(PR)/PROJECT_OVERVIEW.md
+# if those were updated
+git diff --cached   # must show no GEMINI_API_KEY
+git commit -m "feat: add canonical skill catalog and AI-powered learner profiling"
 git push
 ```
 
 **Your Git History**:
 1. feat: initialize PathFinder foundation
-2. feat: implement skill gap and learning path engine ← **YOU ARE HERE**
+2. feat: implement skill gap and learning path engine
+3. feat: add canonical skill catalog and AI-powered learner profiling ← **YOU ARE HERE** (Commit 3, 2026-09-12)
 
 ---
 
@@ -179,8 +184,9 @@ backend/
 - `GET /` - Root endpoint
 - `GET /health` - Health check
 - `POST /api/path/generate` - Generate learning path from current skills and career goals
+- `POST /api/profile/create` - Create/validate learner profile (Phase 2A)
 
-**Test Verified**: `POST /api/path/generate` returns `skill_gaps`, `recommendations`, and `learning_path` with test request containing current_skills, career_requirements, and prerequisites.
+**Test Verified (2026-09-01)**: `POST /api/profile/create` validates Pydantic (hours=float, mastery 0..100) and `POST /api/path/generate` returns `skill_gaps`, `recommendations`, `learning_path`.
 
 ### 🚨 Architectural Point
 
@@ -215,6 +221,58 @@ This modular design ensures:
 - Future enhancement path: LLM can be added for NL understanding without breaking core logic
 - Clear separation of concerns: algorithm handles the "what", LLM handles the "how" in natural language
 
+
+---
+
+### STEP 11: Canonical Knowledge Base (Commit 3) ✅
+
+**Problem found before commit:** `career_skills.json` only mapped `genai_engineer` (26 rows); `data_scientist`/`backend_developer` had 0 rows. `skills_catalog.json` didn’t exist, so `sql`/`pandas`/`data_visualization` were not canonical — Gemini invented `sql` → 500. LLM also returned `experience_level: null` on sparse input → Pydantic `str` required → 500.
+
+**Fix:**
+
+1. **Created `backend/data/skills_catalog.json`** — 77 canonical skills (Programming 5, Data 6, Math 4, ML 6, Deep Learning 8, GenAI 19, Engineering 8, Backend 7, Deployment 6). Single source of truth. `data_loader.load_skills()` now prefers this file (priority 1), so prompt always shows `sql`, `pandas`, etc.
+
+2. **Expanded `backend/data/career_skills.json`** — from 26 to 70 rows:
+   - `genai_engineer` 26 (kept)
+   - `ai_engineer` 10 (python, ml, neural_networks, deep_learning, nlp, computer_vision, fastapi, rest_api, docker, ai_system_design)
+   - `ml_engineer` 11 (python, statistics, linear_algebra, ml, feature_engineering, model_evaluation, scikit_learn, deep_learning, pytorch, docker, mlops)
+   - `data_scientist` 12 (python, sql, pandas, numpy, statistics, probability, data_cleaning, data_analysis, data_visualization, ml, model_evaluation, scikit_learn)
+   - `backend_developer` 11 (python, oop, dsa, sql, databases, rest_api, fastapi, authentication, testing, docker, backend_architecture)
+
+3. **Expanded `backend/data/prerequisites.json`** — 52 → 65 edges; added 13 Data/Backend edges: `pandas→python`, `numpy→python`, `data_cleaning→pandas`, `data_analysis→pandas`, `data_visualization→data_analysis`, `scikit_learn→python/ml`, `supervised/unsupervised→ml`, `databases→sql`, `rest_api→python`, `authentication→rest_api`, `testing→rest_api`.
+
+4. **Created `backend/app/data_loader.py`** — defensive 3-priority loader: (1) `skills_catalog.json` if `[{id,name}]`, (2) `skills.json` if catalog-shaped, (3) derive from `career_skills+prerequisites+skills` deduped + fallback.
+
+5. **Fixed `backend/app/schemas/profile.py`** — `skills: List[LearnerSkill] = Field(default_factory=list)` (mutable-default fix) for all list fields; `experience_level: Optional[str] = None` (sparse input no longer 500).
+
+Referential integrity: every `career_skills.skill_id` and every `prerequisites.*` exists in `skills_catalog` (verified: 0 missing).
+
+---
+
+### STEP 12: AI Learner Profiling — `POST /api/profile/extract` (Commit 3) ✅
+
+**Files:** `backend/app/services/ai/llm_service.py` (Gemini), `backend/app/api/routes/profile.py` (`/extract`), `backend/.env` (`GEMINI_API_KEY`, gitignored).
+
+**LLMService design:**
+- Prompt injects `AVAILABLE CAREERS` + `AVAILABLE SKILLS` (canonical) + 7 rules (only use listed IDs, mastery 0-100, confidence 0-1, no invention, null/[] on missing, return ONLY JSON).
+- `client.models.generate_content(model="gemini-2.5-flash", contents=prompt)` → strip ``` fences → `json.loads`.
+- Architecture: `Natural language → LLMService.extract_learner_profile() → JSON → Pydantic LearnerProfile` — LLM does **profile extraction only**, deterministic engine builds the path.
+- Swap provider (Groq) by replacing `__init__`/`extract` without touching callers. Lazy `from google import genai` inside `__init__` so tests import without the package.
+
+**Route `POST /api/profile/extract` (3-layer validation):**
+1. Filter: drop `skill_id` not in `valid_skill_ids` (LLMs invent IDs — defense-in-depth).
+2. Career ID check: `target_career` must be in `valid_career_ids` (`data_scientist` ✓, `Data Scientist` ✗).
+3. Pydantic: `try: LearnerProfile(**extracted) except ValidationError → 400` (never 500 leak).
+
+**Tests 2026-09-12 (all 200 before free-tier quota hit 20/day → 429):**
+- GenAI: `python 85/ml 80/llm 30, target genai_engineer, hrs 10` ✓
+- DataSci: `python 75/sql 75/statistics 70, target data_scientist, hrs 8` ✓
+- Backend: `python 70/oop 40/rest_api 50/sql 50/databases 50, target backend_developer, hrs 12` ✓
+- Sparse: `I want to become a Data Scientist. → skills: []` (no hallucination) ✓
+- Canonical IDs ✓, mastery 0-100 ✓, confidence 0-1 ✓
+
+**Interview prep:** `backend/docs/INTERVIEW_PREP_COMMIT3.md` (32 Q&A) + `INTERVIEW:` inline comments in 4 files.
+
 ## Next Steps
 
 - Populate data files (careers.json, skills.json, prerequisites.json) with real data
@@ -228,9 +286,64 @@ This modular design ensures:
 
 ---
 
-## 🔮 What Comes After Commit 2
+### STEP 10: Phase 2A — Learner Profile (Natural Language → Structured Data) ✅
 
-Once the core skill gap and learning path engine is working, the full PathFinder application will layer these components:
+**Goal:** Convert what the learner tells PathFinder into structured information the engine can use.
+
+**Why:** Engine expects `{"python":80,"machine_learning":65}` but learner says *"I know Python pretty well, I've done basic ML, I want to become GenAI engineer, 10 hrs/week"* — need bridge.
+
+**Schema:** `backend/app/schemas/profile.py`
+```python
+from pydantic import BaseModel, Field
+from typing import List, Optional
+
+class LearnerSkill(BaseModel):
+    skill_id: str
+    mastery: float = Field(ge=0, le=100)
+
+class LearnerProfile(BaseModel):
+    name: Optional[str] = None
+    target_career: str
+    goal_description: Optional[str] = None
+    experience_level: str
+    skills: List[LearnerSkill] = []
+    completed_courses: List[str] = []
+    completed_projects: List[str] = []
+    interests: List[str] = []
+    hours_per_week: Optional[float] = None
+    deadline: Optional[str] = None
+    learning_preference: Optional[str] = None
+```
+Why Pydantic: `hours_per_week` → number, `mastery` → 0..100. Without: `"a lot"` slips through. With: `422` + judge-friendly explanation.
+
+**API:** `backend/app/api/routes/profile.py`
+```python
+from fastapi import APIRouter
+from app.schemas.profile import LearnerProfile
+router = APIRouter(prefix="/api/profile", tags=["Learner Profile"])
+@router.post("/create")
+def create_profile(profile: LearnerProfile):
+    return {"message": "Learner profile created successfully", "profile": profile}
+```
+Wired in `backend/app/main.py`: `from app.api.routes.profile import router as profile_router` + `app.include_router(profile_router)`
+New endpoint: `POST /api/profile/create` (also in detail: `Phase_2A_Learner_Profile.md`).
+
+**Design decision:** No 15-question form. One prompt — *"Tell me about your goal, experience, skills, and how you prefer to learn."* AI (Phase 2B Gemini/Groq) extracts Goal/Experience/Skills/Time/Deadline/Preference.
+
+**Test (2026-09-01):** `TestClient POST /api/profile/create` → 200 ok, `hours="a lot"` → 422 float_parsing, `mastery=150` → 422 le=100, `POST /api/path/generate` still 200 with gaps.
+
+**Pipeline now:**
+```
+Natural language → (Phase 2B LLM) → LearnerProfile (Pydantic) → Skill Gap Engine → Recommendation → Path
+```
+
+See `Phase_2A_Learner_Profile.md` for full Phase 2A doc.
+
+---
+
+## 🔮 What Comes After Commit 2 — Updated After Phase 2A
+
+Core skill gap + path engine is working. Phase 2A added the Learner Profile bridge. Full PathFinder layers:
 
 ```
               USER
@@ -262,6 +375,154 @@ Recommendation Engine ✅ (Already implemented)
 - Layers 1-2 (Goal Understanding) will integrate LLM for natural language input
 - Layers 7-10 will be built after the core is solidified
 - **Don't jump ahead** - focus on getting `/api/path/generate` working with real data first
+
+---
+
+## 🧭 PathFinder Status So Far — Core Engine v0.2 (Commit 2 Complete)
+
+We built the **engine and knowledge**, not yet the user-facing car:
+
+```
+                 PATHFINDER
+                     │
+        ┌────────────┴────────────┐
+        │                         │
+    Knowledge                  Intelligence
+       Base                      Engine
+        │                         │
+        ▼                         ▼
+ Skills + Careers          Gap Calculation
+ Prerequisites             Recommendations
+                           Path Generation
+```
+
+### 1. End-to-End Pipeline (Currently Working)
+
+```
+Learner → Current skills → Skill Gap Engine → Compare vs Target Career → Skill Gaps → Recommendation Engine (Check prerequisites) → Recommended Skills → Learning Path Generator → Learning Path
+```
+
+### 2. FastAPI Backend — `backend/app/main.py` (Communication layer, future `React → FastAPI → PathFinder`)
+
+### 3. Database Foundation — SQLite `pathfinder.db` + SQLAlchemy
+
+6 models: `Learner`, `Skill`, `LearnerSkill`, `Career`, `CareerSkill`, `Prerequisite`
+→ `Learner has Skills`, `Career requires Skills`, `Skill depends on Prerequisites`
+
+### 4. Knowledge Base (~50 skills, 10 domains)
+
+Programming, Mathematics, ML, Deep Learning, GenAI, Retrieval, RAG, Agents, Backend, Deployment, Career
+Chain: `Python → ML → Transformers → LLM Fundamentals → Embeddings → Vector DB → RAG → AI Agents`
+
+### 5. Career Knowledge (GenAI Engineer Deepest)
+
+`GenAI Engineer` requires: Python, ML, Transformers, LLM Fundamentals, Prompt Eng, Embeddings, Vector DB, RAG, AI Agents, FastAPI, Docker, Cloud, System Design, Capstone (also AI Engineer, ML Engineer, Data Scientist, Backend Developer)
+
+### 6. Prerequisite Graph — Directed Edges
+
+`LLM Fundamentals → Embeddings → Vector DB → Vector Search → Retrieval → RAG` → PathFinder says *“Not ready for RAG — build Embeddings first”*
+
+### 7. Skill Gap Engine — `WHAT YOU KNOW vs WHAT CAREER REQUIRES`
+
+- Python 80/70 → READY, RAG 0/75 → GAP = 75
+
+### 8. Recommendation Engine — Ranked by Priority
+
+`priority = gap × importance_weight` (critical 1.0, high 0.85, medium 0.65, low 0.40)
+RAG 75/critical → High, Docker 30/medium → Lower
+
+### 9. Prerequisite Awareness
+
+RAG 0 + Embeddings 0 → `Embeddings → Vector DB → Vector Search → Retrieval → RAG` (don’t jump to RAG)
+
+### 10. Learning Path Generator — `Step 1→2→3→4` with `skill, current/target/gap, importance, readiness, reason`
+
+e.g. `Step 4: RAG | 0/75 | Critical | Why: prerequisite retrieval skills must be developed first`
+
+### 11. Current API — `POST /api/path/generate` (First End-to-End Backend Flow)
+
+`Request → /api/path/generate → Skill Gap → Recommendation → Path Generator → JSON (skill_gaps + recommendations + learning_path)`
+
+### ❌ What We Have NOT Built Yet
+
+- Conversational interface (`“I want to become GenAI Engineer in 6 months”`)
+- Learner onboarding (name, goal, experience, skills, hours/week, deadline, preference)
+- Resource recommendations (Skill → courses/projects/videos/articles/assessments)
+- Dashboard (progress, milestones, next action, learning path)
+- AI assistant (Gemini/Groq)
+- Adaptation loop (complete → assessment → new mastery → recalculate → update path)
+- Frontend (React)
+
+> Status: **PathFinder Core Engine v0.2** — real foundation, not UI mockup
+
+```
+                    PATHFINDER
+                         │
+                         ▼
+                 ┌───────────────┐
+                 │ Knowledge Base │
+                 └───────┬───────┘
+                         │
+             ┌───────────┼───────────┐
+             ▼           ▼           ▼
+          Skills      Careers   Prerequisites
+             │           │           │
+             └───────────┼───────────┘
+                         ▼
+                 ┌───────────────┐
+                 │ Skill Gap     │
+                 │ Engine        │
+                 └───────┬───────┘
+                         ▼
+                 ┌───────────────┐
+                 │ Recommendation│
+                 │ Engine        │
+                 └───────┬───────┘
+                         ▼
+                 ┌───────────────┐
+                 │ Path Generator│
+                 └───────┬───────┘
+                         ▼
+                  Learning Path
+```
+
+### 🚀 Phase 2A Done — What Phase 2B Adds
+
+Phase 2A built the **structured container** (`LearnerProfile` schema + `POST /api/profile/create`).
+
+Phase 2B will add **LLM extraction**:
+
+`“I’m a 3rd year student. I know Python and basic ML. I want GenAI Engineer in 6 months, 10 hrs/week, project-based.”`
+→ Gemini/Groq →
+```
+LearnerProfile { target_career: "GenAI Engineer", experience_level: "intermediate", skills: [{skill_id:"python", mastery:70}, ...], hours_per_week: 10, deadline: "6 months", learning_preference: "project" }
+```
+
+Architecture after 2A:
+```
+                 USER
+                   │ Natural language
+                   ▼
+          ┌──────────────────┐
+          │ Goal Understanding│  ← Phase 2B (Gemini/Groq)
+          └────────┬─────────┘
+                   ▼
+          ┌──────────────────┐
+          │ Profile Extractor│  ← Phase 2B maps to LearnerProfile
+          └────────┬─────────┘
+                   ▼
+            Learner Profile ✅ ← Phase 2A DONE → Skill Gap Engine → Recommendation → Learning Path
+```
+
+### 🟢 Git Status — Ready for Commit 3
+
+```
+Commit 1  feat: initialize PathFinder foundation
+Commit 2  feat: implement skill gap and learning path engine
+Commit 3  feat: add Phase 2A learner profile schema and API ← YOU ARE HERE
+```
+
+**Test gate passed (2026-09-01):** `POST /api/profile/create` + `POST /api/path/generate` both 200. Next step: **Phase 2B — Natural Language → LearnerProfile (Gemini/Groq extraction).**
 
 **File:** `backend/app/db/database.py`
 

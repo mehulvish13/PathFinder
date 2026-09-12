@@ -1,4 +1,5 @@
 from fastapi import FastAPI
+from app.api.routes.profile import router as profile_router
 
 from app.db.database import Base, engine
 from app.models import (
@@ -20,6 +21,7 @@ app = FastAPI(
 )
 
 app.include_router(path_router)
+app.include_router(profile_router)
 
 
 @app.get("/")

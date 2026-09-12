@@ -413,7 +413,7 @@ Chain: `Python → ML → Transformers → LLM Fundamentals → Embeddings → V
 
 **✅ Prerequisite Graph** (directed edges, hard/soft):
 `LLM Fundamentals → Embeddings → Vector DB → Vector Search → Retrieval → RAG`
-→ PathFinder can say: *“You want RAG but you’re not ready — build Embeddings first.”*
+→ PathFinder can say: *"You want RAG but you're not ready — build Embeddings first."*
 
 **✅ Skill Gap Engine** — compares `WHAT YOU KNOW vs WHAT CAREER REQUIRES`
 e.g. Python 80/70 → READY, RAG 0/75 → GAP = 75
@@ -467,7 +467,7 @@ e.g. `Step 4: RAG | 0/75 | Critical | Why: prerequisite retrieval skills must be
 
 ### ❌ What We Have NOT Built Yet
 
-- Conversational interface / LLM extraction (`“I want to become GenAI Engineer in 6 months” → LearnerProfile`) — Phase 2B
+- Conversational interface / LLM extraction (`"I want to become GenAI Engineer in 6 months" → LearnerProfile`) — Phase 2B
 - Resource recommendations (Skill → courses/projects/videos/articles/assessments)
 - Dashboard (progress, milestones, next action)
 - AI assistant (Gemini/Groq — Phase 2B)
@@ -480,7 +480,7 @@ e.g. `Step 4: RAG | 0/75 | Critical | Why: prerequisite retrieval skills must be
 
 Phase 2A built the **container** (`LearnerProfile` + `POST /api/profile/create`). Phase 2B adds **extraction**:
 
-User says: *“I’m a 3rd year student. I know Python and basic ML. I want GenAI Engineer in 6 months, 10 hrs/week, project-based.”*
+User says: *"I'm a 3rd year student. I know Python and basic ML. I want GenAI Engineer in 6 months, 10 hrs/week, project-based."*
 → Gemini/Groq → `LearnerProfile{target_career:"GenAI Engineer", experience_level:"intermediate", skills:[{skill_id:"python",mastery:70},{skill_id:"machine_learning",mastery:50}], hours_per_week:10, deadline:"6 months", learning_preference:"project"}`
 
 Phase 2B Architecture:
