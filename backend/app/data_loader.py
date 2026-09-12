@@ -102,5 +102,23 @@ def load_careers() -> list[dict]:
     return sorted(out, key=lambda x: x["id"])
 
 
+def load_resources() -> list[dict]:
+    """Returns curated learning resources."""
+    # INTERVIEW: centralized loader lets resources.json → SQLite → Qdrant later without touching matcher/path
+    raw = _load_json(DATA_DIR / "resources.json")
+    out = []
+    for resource in raw:
+        if not isinstance(resource, dict):
+            continue
+        if not resource.get("id"):
+            continue
+        if not resource.get("title"):
+            continue
+        if not resource.get("skill_id"):
+            continue
+        out.append(resource)
+    return out
+
+
 def load_all() -> dict:
-    return {"skills": load_skills(), "careers": load_careers()}
+    return {"skills": load_skills(), "careers": load_careers(), "resources": load_resources()}

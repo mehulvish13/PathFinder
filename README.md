@@ -2,22 +2,21 @@
 
 AI-Powered Personalized Learning Path Recommender
 
-## 🟢 COMMIT 3 — Canonical Knowledge Base + AI Learner Profiling Ready
+## 🟢 COMMIT 4 — Resource Recommendation Engine Ready
 
-**Status**: Skill Gap Engine + Path Generator + Learner Profile + AI Extraction (Gemini) + Canonical Knowledge Base (77 skills, 5 careers) ✅ Complete
+**Status**: Skill Gap + Path + AI Profiling (77 skills, 5 careers) + Resource Matcher (8 curated resources, 50/20/20/10 scoring) ✅ Complete
 
 **Endpoints**:
 - `POST /api/profile/create` — Validate & store learner profile (Pydantic: mastery 0..100, `hours_per_week` float)
-- `POST /api/profile/extract` — **NEW** Natural language → `LearnerProfile` via Gemini (constrained to canonical `skills_catalog.json` + `careers.json`, 3-layer validation: prompt → filter → Pydantic)
-- `POST /api/path/generate` — Skill gaps → recommendations → learning path
+- `POST /api/profile/extract` — Natural language → `LearnerProfile` via Gemini (canonical catalog, 3-layer validation)
+- `POST /api/path/generate` — **UPDATED** Skill gaps → recommendations → learning path with `resources[]` per skill (optional `learner_level`, `learning_preference`, `max_hours`, `resource_limit` — backward compatible)
 
-**Verified 2026-09-12**: `POST /api/profile/extract` — GenAI `genai_engineer` (python 85/ml 80/llm 30), DataSci `data_scientist` (python 75/sql 75/statistics 70), Backend `backend_developer` (python 70/oop 40/rest_api 50/sql 50/databases 50) all **200**; Sparse `skills: []` (no hallucination); canonical IDs `data_scientist`/`backend_developer`/`genai_engineer` validated. Earlier 2026-09-01: `POST /api/profile/create` rejects `hours="a lot"` (422), `mastery=150` (422).
+**Verified 2026-09-12 (Commit 4)**: `load_resources()=8`, `missing=[]`, Pydantic `validated=8`; matcher `embeddings/beginner/project → project 90.0 > course 80.0`; `POST /api/path/generate → 200` with `embeddings → 2 resources`. Earlier: `POST /api/profile/extract` all 200 (GenAI/DataSci/Backend/Sparse); `POST /api/profile/create` rejects `hours="a lot"` (422), `mastery=150` (422). `pytest` not installed — smoke via `TestClient`.
 
-**Ready to commit**:
+**Ready to commit (Commit 4)**:
 ```bash
-git add backend/app/schemas/profile.py backend/app/api/routes/profile.py backend/app/services/ai/llm_service.py backend/app/data_loader.py backend/data/skills_catalog.json backend/data/career_skills.json backend/data/prerequisites.json backend/docs/INTERVIEW_PREP_COMMIT3.md
-git diff --cached   # verify: no GEMINI_API_KEY, no LICENSE/README noise
-git commit -m "feat: add canonical skill catalog and AI-powered learner profiling"
+git add .
+git commit -m "feat: add personalized resource recommendation engine"
 git push
 ```
 

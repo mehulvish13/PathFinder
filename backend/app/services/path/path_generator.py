@@ -1,5 +1,11 @@
 from typing import Dict, List, Optional
 
+# INTERVIEW: import matcher here (not LLM) — keeps path deterministic and explainable
+try:
+    from app.services.resources.resource_matcher import recommend_resources
+except ImportError:
+    recommend_resources = None  # type: ignore
+
 IMPORTANCE_WEIGHT = {
     "critical": 1.0,
     "high": 0.85,
@@ -50,19 +56,29 @@ def calculate_skill_gaps(
 
 def generate_learning_path(
     recommendations: List[dict],
-    prerequisites: Optional[List[dict]] = None
+    prerequisites: Optional[List[dict]] = None,
+    resources: Optional[List[dict]] = None,
+    learner_level: str = "beginner",
+    learning_preference: Optional[str] = None,
+    max_hours: Optional[float] = None,
+    resource_limit: int = 3,
 ) -> Dict[str, List[str]]:
     """
     Generate a personalized learning path from skill recommendations.
-    
+
     This function takes skill recommendations (from the recommendation engine)
     and creates a sequential learning path that respects prerequisite
     dependencies, ensuring learners build knowledge in the correct order.
-    
+
     Args:
         recommendations: List of skill recommendations from recommend_skills
         prerequisites: List of prerequisite relationships between skills
-    
+        resources: Curated resources list (from load_resources) — matched per skill
+        learner_level: beginner|intermediate|advanced for difficulty fit
+        learning_preference: project|theory|mixed for type fit
+        max_hours: time fit filter for resources
+        resource_limit: top-N resources per skill
+
     Returns:
         Dictionary containing the personalized learning path with stages/phases
     """
@@ -80,36 +96,56 @@ def generate_learning_path(
     path = []
     learned_skills = set()
     
-    # Process recommendations in priority order
+    # Process recommendations in priority order (support priority_score legacy)
     for recommendation in sorted(
         recommendations,
-        key=lambda x: x.get("priority", 0),
+        key=lambda x: x.get("priority", x.get("priority_score", 0)),
         reverse=True
     ):
-        skill_id = recommendation.get("skill_id", "")
-        
+        skill_id = recommendation.get("skill_id", recommendation.get("skill", ""))
+        priority = recommendation.get("priority", recommendation.get("priority_score", 0))
+
+        # INTERVIEW: match resources per skill here — deterministic 50/20/20/10, no LLM
+        skill_resources: List[dict] = []
+        if resources and recommend_resources is not None:
+            try:
+                skill_resources = recommend_resources(
+                    skill_id=skill_id,
+                    resources=resources,
+                    learner_level=learner_level,
+                    learning_preference=learning_preference,
+                    max_hours=max_hours,
+                    limit=resource_limit,
+                )
+            except Exception:
+                skill_resources = []
+
         # Resolve prerequisites - only add skill when prerequisites are met
         unresolved_prereqs = _get_unresolved_prerequisites(
             skill_id, learned_skills, prereq_map
         )
-        
+
         if unresolved_prereqs:
             # Skill is blocked by prerequisites - add prerequisite info
             path.append({
                 "skill": skill_id,
+                "skill_id": skill_id,
                 "status": "blocked",
                 "prerequisites": unresolved_prereqs,
-                "priority": recommendation.get("priority", 0)
+                "priority": priority,
+                "resources": skill_resources,
             })
         else:
             # Skill can be learned - add to path
             path.append({
                 "skill": skill_id,
+                "skill_id": skill_id,
                 "status": "ready",
                 "current_mastery": recommendation.get("current_mastery", 0),
                 "required_mastery": recommendation.get("required_mastery", 0),
                 "gap": recommendation.get("gap", 0),
-                "priority": recommendation.get("priority", 0)
+                "priority": priority,
+                "resources": skill_resources,
             })
             learned_skills.add(skill_id)
     

@@ -1,0 +1,90 @@
+[
+  {
+    "id": "python_basics_01",
+    "title": "Python Fundamentals",
+    "type": "course",
+    "skill_id": "python",
+    "difficulty": "beginner",
+    "estimated_hours": 8,
+    "url": "https://example.com",
+    "description": "Learn Python programming fundamentals.",
+    "tags": ["python", "programming", "basics"]
+  },
+  {
+    "id": "python_project_01",
+    "title": "Build a CLI Task Tracker",
+    "type": "project",
+    "skill_id": "python",
+    "difficulty": "beginner",
+    "estimated_hours": 6,
+    "url": "https://example.com",
+    "description": "Practice Python by building a small CLI app.",
+    "tags": ["python", "project"]
+  },
+  {
+    "id": "llm_fundamentals_01",
+    "title": "LLM Fundamentals",
+    "type": "course",
+    "skill_id": "llm_fundamentals",
+    "difficulty": "beginner",
+    "estimated_hours": 4,
+    "url": "https://example.com",
+    "description": "Tokens, context windows, and LLM APIs.",
+    "tags": ["llm", "fundamentals"]
+  },
+  {
+    "id": "prompt_eng_01",
+    "title": "Prompt Engineering Tutorial",
+    "type": "tutorial",
+    "skill_id": "prompt_engineering",
+    "difficulty": "beginner",
+    "estimated_hours": 3,
+    "url": "https://example.com",
+    "description": "Structured prompts and few-shot patterns.",
+    "tags": ["prompting", "llm"]
+  },
+  {
+    "id": "embeddings_01",
+    "title": "Embeddings Fundamentals",
+    "type": "course",
+    "skill_id": "embeddings",
+    "difficulty": "beginner",
+    "estimated_hours": 4,
+    "url": "https://example.com",
+    "description": "Learn vector embeddings and semantic similarity.",
+    "tags": ["embeddings", "vectors"]
+  },
+  {
+    "id": "embeddings_project_01",
+    "title": "Build a Semantic Search System",
+    "type": "project",
+    "skill_id": "embeddings",
+    "difficulty": "intermediate",
+    "estimated_hours": 8,
+    "url": "https://example.com",
+    "description": "Build a small semantic search app using embeddings.",
+    "tags": ["embeddings", "semantic-search", "project"]
+  },
+  {
+    "id": "vector_db_01",
+    "title": "Vector Databases Docs",
+    "type": "documentation",
+    "skill_id": "vector_databases",
+    "difficulty": "intermediate",
+    "estimated_hours": 5,
+    "url": "https://example.com",
+    "description": "Vector DB concepts and indexing basics.",
+    "tags": ["vector-db", "retrieval"]
+  },
+  {
+    "id": "rag_fundamentals_01",
+    "title": "RAG Fundamentals Quiz",
+    "type": "assessment",
+    "skill_id": "rag_fundamentals",
+    "difficulty": "intermediate",
+    "estimated_hours": 2,
+    "url": "https://example.com",
+    "description": "Check RAG ingestion, retrieval, and evaluation basics.",
+    "tags": ["rag", "assessment"]
+  }
+]

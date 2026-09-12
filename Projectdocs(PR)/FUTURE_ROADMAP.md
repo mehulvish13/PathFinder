@@ -111,17 +111,60 @@ Gemini/Groq → LearnerProfile
 Skill Gap Engine → Path
 ```
 
-### Phase 3: Resources & Projects
-**Timeline:** After Phase 2B
-**Goal:** Skill → courses, projects, videos, assessments
+### Phase 3: Resources & Projects — DONE (Commit 4, 2026-09-12)
+**Timeline:** Complete — YOU ARE HERE (Commit 4 done, ready to commit)
+**Goal:** Answer "HOW should I learn this skill?" — Skill → courses, projects, docs, assessments
 
-**Features:**
-- Resource recommendations per skill
-- Project suggestions for hands-on practice
-- Video/article curation
-- Assessment question banks
+**Status 2026-09-12:** Implemented + verified: `resources.json=8`, matcher `50/20/20/10`, `POST /api/path/generate → 200` with `resources[]`. Ready to commit `feat: add personalized resource recommendation engine`. Temp `example.com` URLs — real URLs later.
 
-**Architecture:**
+**Decision: Option A first (Curated local `resources.json`, 30-50 resources)**
+- Option A: Curated local resources — easy, reliable, no external API, fast, perfect for hackathon MVP, easy demo/deploy.
+- Option B: Live resource discovery (internet search for courses/tutorials) — more dynamic but more complexity, failure points, quality risk.
+- Choice: Option A first to finish MVP successfully. Option B later as enhancement if time remains.
+
+**What NOT to do yet (V1 scope guard):**
+- ❌ vector database / Qdrant / embeddings / hybrid retrieval / Supabase / Neon
+- Priority stays: `WORKING MVP → POLISH → ADVANCED RETRIEVAL`, not advanced architecture first.
+
+**Phase 3A: Resource data model (implemented):**
+```text
+Resource
+├── id (e.g. res_embeddings_01)
+├── title (e.g. Embeddings Fundamentals)
+├── type (course | tutorial | documentation | project | assessment)
+├── skill_id (canonical, must ∈ skills_catalog.json)
+├── difficulty (beginner | intermediate | advanced)
+├── estimated_hours
+├── URL
+├── description
+└── tags
+```
+Example skill `embeddings` gets: 📚 Learning Resource + 📖 Documentation + 🛠 Mini Project (semantic-search) + 📝 Assessment (similarity quiz).
+
+**Personalization (verified): embeddings/beginner/project → project 90.0 > course 80.0:**
+- Same skill `RAG`, different learner → different experience:
+- User A (Beginner, 5 hrs/week) → beginner resource + small project
+- User B (Intermediate, 15 hrs/week) → advanced resource + larger project + assessment
+
+**Architecture (implemented):**
+```
+Learner Profile
+      ↓
+Skill Gap Engine
+      ↓
+Learning Path → Required Skills
+      ↓
+Resource Matcher
+      ↓
+┌───────────────────────┐
+│ Courses    │ Projects │
+│ Tutorials  │ Assessments │
+└────────────┬──────────┘
+              ↓
+     Personalized Path (Learn 📚 → Practice 🛠 → Assess 📝 → Milestone)
+```
+
+**Architecture (legacy summary kept):**
 ```
 Learning Path Skill
         ↓

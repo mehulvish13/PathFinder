@@ -1,5 +1,41 @@
 # Steps Done - PathFinder Backend Foundation
 
+## 🟢 COMMIT 4 — Resource Recommendation Engine — DONE, Ready to Commit (2026-09-12)
+
+**Where we are:**
+```text
+Commit 1 Foundation ✅
+   ↓
+Commit 2 Skill Gap + Learning Path Engine ✅
+   ↓
+Commit 3 AI Learner Profiling ✅
+   ↓
+Commit 4 Resource Recommendation Engine ✅ ← YOU ARE HERE
+```
+
+**Problem solved:** Path listed `Embeddings, Vector DBs, RAG` but hackathon asks for `courses, projects and learning resources`. Now each path skill returns `resources[]` — Learn 📚 → Practice 🛠 → Assess 📝.
+
+**Decision (implemented):** Option A — curated local `resources.json` (8 test resources, temp `example.com` URLs). Option B (live discovery) deferred. No vector DB / Qdrant yet. Priority kept: `WORKING MVP → POLISH → ADVANCED`.
+
+**Files (verified):**
+- `backend/app/schemas/resource.py` — Pydantic `Resource` (`gt=0`, `default_factory`, canonical `skill_id`) + INTERVIEW notes
+- `backend/data/resources.json` — 8 entries (python×2, llm×1, prompt×1, embeddings×2, vector_db×1, rag×1), all `skill_id ∈ catalog`
+- `backend/app/data_loader.py` — `load_resources()` + `load_all() → {skills, careers, resources}`
+- `backend/app/services/resources/resource_matcher.py` — `50/20/20/10` deterministic scorer + INTERVIEW notes
+- `backend/app/services/path/path_generator.py` — `generate_learning_path(..., resources, learner_level, preference, max_hours)` + `"resources":` per item
+- `backend/app/api/routes/path.py` — `PathRequest` extended with optional `learner_level/preference/max_hours/resource_limit` (backward compatible)
+
+**Verified (not invented):**
+- DATA: `load_resources()=8`, `missing=[]`, Pydantic `validated=8`
+- MATCHER: `embeddings/beginner/project → project 90.0 > course 80.0`
+- API: `POST /api/path/generate → 200`, `embeddings → 2 resources` with `recommendation_score`
+- TESTS: `pytest` not installed — smoke via `TestClient` used per skill §6.1 fallback
+- SECURITY: no keys added in this commit
+
+**Git checkpoint:** Ready for scoped commit `feat: add personalized resource recommendation engine`. See `backend/docs/INTERVIEW_PREP_COMMIT4.md` for Q&A.
+
+---
+
 ## 🟢 COMMIT 3 - Canonical Knowledge Base + AI Learner Profiling — Ready to Push
 
 **Endpoints Verified (2026-09-12)**:
