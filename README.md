@@ -2,6 +2,115 @@
 
 AI-Powered Personalized Learning Path Recommender
 
+## 🟢 COMMIT 5 — Phase 4 Complete (2026-10-01, `7d253d5`)
+
+**Status**: All Phase 4 committed ✅ — `feat: add Phase 4 roadmap + progress tracking system (4A-4E)`
+
+**Endpoints**:
+- `POST /api/profile/create` — Validate & store learner profile
+- `POST /api/profile/extract` — Natural language → `LearnerProfile` via Gemini
+- `POST /api/path/generate` — Returns `skill_gaps`, `recommendations`, `learning_path`, `roadmap` (optional `target_career`, `hours_per_week`, `learner_level`, `learning_preference`, `max_hours`, `resource_limit` — backward compatible; `roadmap` includes `estimated_weeks`)
+- `POST /api/progress/activity` — Record learner activity
+- `POST /api/progress/complete` — Mark resource as completed (+10 mastery heuristic, idempotent)
+- `GET /api/progress/{learner_id}` — Get overall progress and next action
+- `GET /api/progress/{learner_id}/skills` — Get skill mastery levels
+- `GET /api/progress/dashboard/{learner_id}` — Unified dashboard (progress bar, skills, milestones, next action, real-hours `estimated_time_remaining`)
+- `GET /api/progress/notifications/{learner_id}` — Personalized notifications (next action, milestones, streaks)
+- `GET /api/progress/certificate/{learner_id}` — Completion certificate (100% only, SHA-256 verified)
+
+**Verified 2026-10-01 (Commit 5)**: KB integrity PASS (77 skills, 5 careers, 70 career-skills, 65 prerequisites, 8 resources — 0 missing refs). 8-endpoint smoke PASS via `TestClient`, including `data_scientist` → `Data Scientist` roadmap label check + old-client backward-compat check. Next: Assessment Engine.
+
+---
+
+## 🟢 PHASE 4E — Notifications & Certificate Complete (2026-09-13, committed in Commit 5)
+
+**Status**: All Phase 4 Complete ✅ — Committed in Commit 5 (`7d253d5`, 2026-10-01)
+
+**Endpoints**:
+- `POST /api/profile/create` — Validate & store learner profile
+- `POST /api/profile/extract` — Natural language → `LearnerProfile` via Gemini
+- `POST /api/path/generate` — **UPDATED** Returns `skill_gaps`, `recommendations`, `learning_path`, `roadmap`
+- `POST /api/progress/activity` — Record learner activity
+- `POST /api/progress/complete` — Mark resource as completed
+- `GET /api/progress/{learner_id}` — Get overall progress and next action
+- `GET /api/progress/{learner_id}/skills` — Get skill mastery levels
+- `GET /api/progress/dashboard/{learner_id}` — Unified dashboard (progress bar, skills, milestones, next action)
+- `GET /api/progress/notifications/{learner_id}` — **NEW** Personalized notifications (next action, milestones, streaks)
+- `GET /api/progress/certificate/{learner_id}` — **NEW** Completion certificate (100% only, SHA-256 verified)
+
+**Verified 2026-09-13 (Phase 4E, committed 2026-10-01 in `7d253d5`)**: Notifications and certificate endpoints complete. All Phase 4 components (4A-4E) committed. See COMMIT 5 section above for post-commit verification.
+
+---
+
+## 🟢 PHASE 4D — Dashboard Complete (2026-09-13)
+
+**Status**: Skill Gap + Path + AI Profiling + Resource Matcher + **Roadmap** ✅ + **Progress Data** ✅ + **Progress API** ✅ + **Dashboard** ✅
+
+**Endpoints**:
+- `POST /api/profile/create` — Validate & store learner profile
+- `POST /api/profile/extract` — Natural language → `LearnerProfile` via Gemini
+- `POST /api/path/generate` — **UPDATED** Returns `skill_gaps`, `recommendations`, `learning_path`, `roadmap`
+- `POST /api/progress/activity` — Record learner activity
+- `POST /api/progress/complete` — Mark resource as completed
+- `GET /api/progress/{learner_id}` — Get overall progress and next action
+- `GET /api/progress/{learner_id}/skills` — Get skill mastery levels
+- `GET /api/progress/dashboard/{learner_id}` — **NEW** Unified dashboard (progress bar, skills, milestones, next action)
+
+**Verified 2026-09-13 (Phase 4D)**: Dashboard endpoint aggregates all progress data into a single `DashboardResponse` with visual progress bar, skill mastery bars, milestone history, and determined next action. All endpoints compile on Python 3.13.
+
+---
+
+## 🟢 PHASE 4C — Progress API Complete (2026-09-13)
+
+**Status**: Skill Gap + Path + AI Profiling (77 skills, 5 careers) + Resource Matcher + **Roadmap Generator** ✅ + **Progress Data Model** ✅ + **Progress API** ✅
+
+**Endpoints**:
+- `POST /api/profile/create` — Validate & store learner profile
+- `POST /api/profile/extract` — Natural language → `LearnerProfile` via Gemini
+- `POST /api/path/generate` — **UPDATED** Returns `skill_gaps`, `recommendations`, `learning_path`, `roadmap`
+- `POST /api/progress/activity` — **NEW** Record learner activity
+- `POST /api/progress/complete` — **NEW** Mark resource as completed
+- `GET /api/progress/{learner_id}` — **NEW** Get overall progress and next action
+- `GET /api/progress/{learner_id}/skills` — **NEW** Get skill mastery levels
+
+**Verified 2026-09-13 (Phase 4C)**: Progress API exposes four endpoints with Pydantic schemas and SQLAlchemy ORM. All endpoints compile on Python 3.13 and integrate with existing models (Activity, Progress, MasteryHistory).
+
+---
+
+## 🟢 PHASE 4B — Progress Data Model Complete (2026-09-13)
+
+**Status**: Skill Gap + Path + AI Profiling (77 skills, 5 careers) + Resource Matcher + **Roadmap Generator** ✅ + **Progress Data Model** ✅
+
+**Endpoints**:
+- `POST /api/profile/create` — Validate & store learner profile
+- `POST /api/profile/extract` — Natural language → `LearnerProfile` via Gemini
+- `POST /api/path/generate` — **UPDATED** Returns `skill_gaps`, `recommendations`, `learning_path`, `roadmap`
+- `POST /api/progress/activity` — Record learner activity [IMPLEMENTED]
+- `POST /api/progress/complete` — Mark resource as completed [IMPLEMENTED]
+- `GET /api/progress/{learner_id}` — Get overall progress [IMPLEMENTED]
+- `GET /api/progress/{learner_id}/skills` — Get skill mastery levels [IMPLEMENTED]
+
+**Verified 2026-09-13 (Phase 4B)**: Progress data model implements three core tables: `Activity` (append-only event log), `Progress` (mutable state snapshot), `MasteryHistory` (longitudinal skill evolution). All models compile on Python 3.13 and register with `Base.metadata.create_all()`.
+
+---
+
+## 🟢 PHASE 4A — Roadmap Generator Complete (committed in Commit 5, 2026-10-01)
+
+**Status**: Skill Gap + Path + AI Profiling (77 skills, 5 careers) + Resource Matcher + **Roadmap Generator** ✅
+
+**Endpoints**:
+- `POST /api/profile/create` — Validate & store learner profile
+- `POST /api/profile/extract` — Natural language → `LearnerProfile` via Gemini
+- `POST /api/path/generate` — **UPDATED** Returns `skill_gaps`, `recommendations`, `learning_path`, `roadmap`
+
+**Verified 2026-09-13 (Phase 4A)**: Roadmap generator transforms linear topological paths into 3-skill phases with explicit competence milestones and immediate `next_action`.
+
+---
+
+## 🟢 COMMIT 4 — Resource Recommendation Engine Ready
+
+---
+
 ## 🟢 COMMIT 4 — Resource Recommendation Engine Ready
 
 **Status**: Skill Gap + Path + AI Profiling (77 skills, 5 careers) + Resource Matcher (8 curated resources, 50/20/20/10 scoring) ✅ Complete
@@ -65,6 +174,9 @@ Database / AI / Skills
 - careers
 - career_skills
 - prerequisites
+- activities (Phase 4B — append-only event log)
+- progress (Phase 4B — mutable state snapshot)
+- mastery_history (Phase 4B — longitudinal mastery)
 
 ## Skill Domains (Phase 1C)
 
@@ -154,8 +266,15 @@ This modular design ensures:
 ### API Endpoints
 
 - `POST /api/profile/create` - Create/validate learner profile (Phase 2A)
-- `POST /api/profile/extract` - **NEW** Natural language → LearnerProfile via Gemini (Phase 2B, Commit 3)
-- `POST /api/path/generate` - Generate complete learning path from current skills and career goals
+- `POST /api/profile/extract` - Natural language → LearnerProfile via Gemini (Phase 2B, Commit 3)
+- `POST /api/path/generate` - Skill gaps → recommendations → learning path + `resources[]` + `roadmap` (optional `target_career`, `hours_per_week`, `learner_level`, `learning_preference`, `max_hours`, `resource_limit` — Commit 5)
+- `POST /api/progress/activity` - Record learner activity (Commit 5)
+- `POST /api/progress/complete` - Mark resource completed, idempotent (Commit 5)
+- `GET /api/progress/{learner_id}` - Overall progress + next action (Commit 5)
+- `GET /api/progress/{learner_id}/skills` - Skill mastery levels (Commit 5)
+- `GET /api/progress/dashboard/{learner_id}` - Unified dashboard (Commit 5)
+- `GET /api/progress/notifications/{learner_id}` - Notifications (Commit 5)
+- `GET /api/progress/certificate/{learner_id}` - Certificate at 100% (Commit 5)
 - `GET /` , `GET /health` - Health
 
 1. Programming Foundations
@@ -190,14 +309,16 @@ backend/
 ├── app/
 │   ├── main.py
 │   ├── db/database.py
-│   ├── models/
-│   ├── schemas/         # profile.py — LearnerProfile (Field default_factory, Optional experience_level)
+│   ├── models/         # learner/skill/learner_skill/career/career_skill/prerequisite + activity/progress/mastery_history (Commit 5)
+│   ├── schemas/        # profile.py, resource.py, roadmap.py (+estimated_weeks), progress.py (Commit 5)
 │   ├── services/
 │   │   ├── ai/          # llm_service.py — Gemini profile extraction (prompt → JSON → filter → Pydantic)
 │   │   ├── skills/      # skill_gap_service.py
 │   │   ├── recommendation/
+│   │   ├── resources/   # resource_matcher.py — 50/20/20/10 deterministic scoring (Commit 4)
+│   │   ├── roadmap/     # roadmap_generator.py — phases/milestones/next_action (Commit 5)
 │   │   └── path/
-│   ├── api/routes/      # profile.py (/create + /extract), path.py
+│   ├── api/routes/      # profile.py (/create + /extract), path.py (+target_career/hours_per_week), progress.py (7 endpoints)
 │   └── data_loader.py   # canonical catalog loader (skills_catalog.json priority)
 ├── data/
 │   ├── skills_catalog.json   # NEW — 77 canonical skills (single source of truth)
@@ -209,7 +330,9 @@ backend/
 │   ├── projects.json
 │   └── assessments/
 ├── docs/
-│   └── INTERVIEW_PREP_COMMIT3.md  # 32 Q&A for this commit
+│   ├── INTERVIEW_PREP_COMMIT3.md
+│   ├── INTERVIEW_PREP_COMMIT4.md
+│   └── INTERVIEW_PREP_COMMIT5.md  # roadmap/progress/dashboard Q&A (Commit 5)
 └── requirements.txt      # + google-genai, python-dotenv
 ```
 
@@ -288,6 +411,8 @@ No output = valid JSON.
 ✓ Prerequisite graph (65 edges, hard/soft) — now covers Data/Backend
 ✓ GenAI/AI/ML/DataSci/Backend skill requirements with mastery + importance
 ✓ **AI Learner Profiling (Gemini)** — `POST /api/profile/extract` with 3-layer validation (prompt → filter → Pydantic)
+✓ **Resource Recommendation (Commit 4)** — 8 curated resources, 50/20/20/10 matcher, `resources[]` per skill
+✓ **Phase 4 Roadmap + Progress (Commit 5, `7d253d5`)** — 3-skill phases with milestones/`next_action`/`estimated_weeks`; Activity/Progress/MasteryHistory tables; 7 progress endpoints (activity, complete, progress, skills, dashboard, notifications, certificate)
 
 ## Git Setup
 
@@ -335,43 +460,45 @@ Then prerequisites are respected to produce the first real personalized learning
 
 ---
 
-## 🔮 What Comes After Commit 3
+## 🔮 What Comes After Commit 5
 
-The full PathFinder application will be built in layers:
+The full PathFinder application is built in layers:
 
 ```
-              USER
-                ↓
-    Natural language goal
-                ↓
-  AI Goal Understanding (LLM)       ← Phase 2B (Gemini/Groq) — next
-                ↓
-    Learner Profile ✅              ← Phase 2A — DONE (schema + POST /api/profile/create)
-                ↓
-  Skill Gap Engine ✅ (Commit 2)
-                ↓
+               USER
+                 ↓
+     Natural language goal
+                 ↓
+   AI Goal Understanding (LLM)       ← Commit 3 (Gemini extract) ✅
+                 ↓
+     Learner Profile ✅              ← Phase 2A — DONE
+                 ↓
+   Skill Gap Engine ✅ (Commit 2)
+                 ↓
 Recommendation Engine ✅ (Commit 2)
-                ↓
-  Personalized Path ✅ (Commit 2)
-                ↓
-  Resources + Projects              ← Phase 3
-                ↓
-  Progress Tracking
-                ↓
-  Adaptive Updates
-                ↓
-   AI Assistant (LLM)
+                 ↓
+   Personalized Path ✅ (Commit 2)
+                 ↓
+   Resources + Projects ✅          ← Commit 4
+                 ↓
+   Roadmap + Progress + Dashboard ✅ ← Commit 5 (`7d253d5`)
+                 ↓
+   Assessment Engine                 ← NEXT (Phase 5)
+                 ↓
+   Real Mastery Updates → Adaptive Roadmap
+                 ↓
+    AI Assistant (LLM)
 ```
 
-**Current State**: Layers 1-6 are complete (Natural Language → Learner Profile (AI) → Skill Gap → Recommendation → Path)
-**Next Step**: Phase 3 — Resource Recommendation Engine (Skill → courses/projects) + Skill Gap → Path wiring for extracted profiles of LearnerProfile from natural language
-**Focus**: `POST /api/profile/create` is ready; next wires `"I want GenAI in 6 months, 10hrs/week"` → `LearnerProfile`
+**Current State**: Layers 1-9 are complete (Natural Language → Learner Profile (AI) → Skill Gap → Recommendation → Path → Resources → Roadmap → Progress → Dashboard/Certificate)
+**Next Step**: Phase 5 — Assessment Engine (quiz scoring → real mastery updates → adaptive roadmap), replacing the V1 `+10 per completion` heuristic
+**Focus**: `POST /api/path/generate` + 7 progress endpoints verified 2026-10-01; next builds `services/assessment/` + `api/routes/assessment.py`
 
 ---
 
-## 🧭 PathFinder Status So Far — Core Engine v0.3 (Phase 2A Complete)
+## 🧭 PathFinder Status So Far — Commit 5: Roadmap + Progress Platform (2026-10-01)
 
-We have built the **core backend intelligence foundation + learner profile bridge + canonical knowledge base + AI extraction**. Think of it like a car — we built the **engine, knowledge, and driver intake**, not yet the conversational body.
+We have built the **core backend intelligence + learner profile bridge + canonical knowledge base + AI extraction + resources + roadmap + progress tracking**. Think of it like a car — engine, knowledge, driver intake, and now the **dashboard and trip computer** work; next is the **adaptive cruise control** (assessment → mastery → adaptation).
 
 ```
                  PATHFINDER
@@ -390,22 +517,22 @@ We have built the **core backend intelligence foundation + learner profile bridg
 ### Current Pipeline
 
 ```
-Learner (natural language) → LearnerProfile (Phase 2A) → Skill Gap Engine → Compare vs Target Career → Skill Gaps
+Learner (natural language) → LearnerProfile (Gemini extract) → Skill Gap Engine → Skill Gaps
    ▼
-Recommendation Engine → Check prerequisites → Recommended Skills
+Recommendation Engine (prerequisites) → Learning Path Generator (+resources) → Roadmap Generator (phases/milestones/next_action)
    ▼
-Learning Path Generator → Ordered Learning Path
+Activity/Complete → Progress + MasteryHistory → Dashboard / Notifications / Certificate
 ```
 
 ### What We Have Built
 
 **✅ FastAPI Backend** — `backend/app/main.py` is the communication layer (future: `React → FastAPI → PathFinder`)
 
-**✅ Database Foundation** — SQLite + SQLAlchemy (`pathfinder.db`) with 6 models:
-`Learner`, `Skill`, `LearnerSkill`, `Career`, `CareerSkill`, `Prerequisite`
-→ Learner has Skills, Career requires Skills, Skill depends on Prerequisites
+**✅ Database Foundation** — SQLite + SQLAlchemy (`pathfinder.db`) with 9 models:
+`Learner`, `Skill`, `LearnerSkill`, `Career`, `CareerSkill`, `Prerequisite` + `Activity`, `Progress`, `MasteryHistory` (Commit 5)
+→ Learner has Skills, Career requires Skills, Skill depends on Prerequisites, Activity logs events, Progress snapshots state, MasteryHistory tracks skill evolution
 
-**✅ Knowledge Base (~50 skills)** across 10 domains: Programming, Mathematics, ML, Deep Learning, GenAI, Retrieval, RAG, Agents, Backend, Deployment, Career.
+**✅ Knowledge Base (77 canonical skills)** across 10 domains: Programming, Mathematics, ML, Deep Learning, GenAI, Retrieval, RAG, Agents, Backend, Deployment, Career.
 Chain: `Python → ML → Transformers → LLM Fundamentals → Embeddings → Vector DB → RAG → AI Agents`
 
 **✅ Career Knowledge** — 5 careers (GenAI Engineer deepest): Python, ML, Transformers, LLM Fundamentals, Prompt Eng, Embeddings, Vector DB, RAG, AI Agents, FastAPI, Docker, Cloud, System Design, Capstone
@@ -428,8 +555,8 @@ e.g. `Step 4: RAG | 0/75 | Critical | Why: prerequisite retrieval skills must be
 **✅ Learner Profile (Phase 2A)** — `LearnerProfile` Pydantic schema + `POST /api/profile/create`
 → `hours_per_week` → float, `mastery` 0..100; `hours="a lot"` → 422. See `Phase_2A_Learner_Profile.md`.
 
-**✅ Current APIs** — `POST /api/profile/create` + `POST /api/path/generate` end-to-end:
-`Request → /api/profile/create (validate) → /api/path/generate → Skill Gap Engine → Recommendation Engine → Path Generator → JSON (profile + skill_gaps + recommendations + learning_path)`
+**✅ Current APIs** — profile + path + progress end-to-end (Commit 5):
+`Request → /api/profile/extract (AI) → /api/path/generate → gaps + recommendations + learning_path (+resources) + roadmap → /api/progress/activity → /complete → /progress/{id} → /dashboard/{id} → /notifications → /certificate`
 
 ### Architecture Visual
 
@@ -466,39 +593,39 @@ e.g. `Step 4: RAG | 0/75 | Critical | Why: prerequisite retrieval skills must be
 
 ### ❌ What We Have NOT Built Yet
 
-- Conversational interface / LLM extraction (`“I want to become GenAI Engineer in 6 months” → LearnerProfile`) — Phase 2B
-- Resource recommendations (Skill → courses/projects/videos/articles/assessments)
-- Dashboard (progress, milestones, next action)
-- AI assistant (Gemini/Groq — Phase 2B)
-- Adaptation loop (complete task → assessment → new mastery → recalculate → update path)
-- Frontend (React)
+- Real assessment scoring (current: V1 `+10 mastery per completion` heuristic) — Phase 5
+- Adaptive roadmap recalculation (mastery → gap → path change) — Phase 6
+- AI explanations / AI tutor (Gemini/Groq) — Phase 7
+- Frontend (React) — Phase 8
 
-> Status: **PathFinder Core Engine v0.3 (Phase 2A)** — profile bridge + engine, real foundation.
+> Status: **Commit 5 `7d253d5` (2026-10-01)** — roadmap + progress platform, real foundation + dashboard.
 
-### 🚀 NEXT: Phase 2B — Natural Language → LearnerProfile (LLM)
+### 🚀 NEXT: Phase 5 — Assessment Engine
 
-Phase 2A built the **container** (`LearnerProfile` + `POST /api/profile/create`). Phase 2B adds **extraction**:
+Commit 5 finished the **recommendation + tracking product** (`Profile → Gaps → Path → Resources → Roadmap → Progress → Dashboard → Certificate`).
+
+Phase 5 makes it **truly adaptive**:
+
+```
+Learn → Assessment → Score → Mastery update → Gaps recalculated → Roadmap adapts → AI explains
+```
 
 User says: *“I’m a 3rd year student. I know Python and basic ML. I want GenAI Engineer in 6 months, 10 hrs/week, project-based.”*
-→ Gemini/Groq → `LearnerProfile{target_career:"GenAI Engineer", experience_level:"intermediate", skills:[{skill_id:"python",mastery:70},{skill_id:"machine_learning",mastery:50}], hours_per_week:10, deadline:"6 months", learning_preference:"project"}`
-
-Phase 2B Architecture:
+→ Gemini → `LearnerProfile{target_career:"genai_engineer", experience_level:"intermediate", skills:[{skill_id:"python",mastery:70},{skill_id:"ml",mastery:50}], hours_per_week:10, deadline:"6 months", learning_preference:"project"}`
+→ gaps → path → roadmap (`estimated_weeks` from `hours_per_week`) → progress → dashboard.
+Phase 5 Architecture:
 ```
-                 USER
-                   │ Natural language
-                   ▼
-          ┌──────────────────┐
-          │ Goal Understanding│ ← Phase 2B (Gemini/Groq)
-          └────────┬─────────┘
-                   ▼
-          ┌──────────────────┐
-          │ Profile Extractor│ ← Maps to LearnerProfile schema
-          └────────┬─────────┘
-                   ▼
-            Learner Profile ✅ ← Phase 2A DONE
-                   │
-                   ▼
-          Skill Gap Engine → Recommendation Engine → Learning Path
+                  USER
+                    │ Assessment answers
+                    ▼
+           ┌──────────────────┐
+           │ Assessment Engine│ ← Phase 5 (scoring + mastery update)
+           └────────┬─────────┘
+                    ▼
+           MasteryHistory (source=quiz)
+                    │
+                    ▼
+           Skill Gap Engine → Recommendation Engine → Roadmap (adapted)
 ```
 
 ### 🟢 Git Status
@@ -506,6 +633,8 @@ Phase 2B Architecture:
 ```
 Commit 1  feat: initialize PathFinder foundation
 Commit 2  feat: implement skill gap and learning path engine
-Commit 3  feat: add canonical skill catalog and AI-powered learner profiling ← YOU ARE HERE (Commit 3)
+Commit 3  feat: add canonical skill catalog and AI-powered learner profiling
+Commit 4  feat: add personalized resource recommendation engine
+Commit 5  feat: add Phase 4 roadmap + progress tracking system (4A-4E) ← YOU ARE HERE (`7d253d5`, 2026-10-01)
 ```
-**Ready to push Commit 3** — Phase 2A verified 2026-09-01. Next: **Phase 2B — Natural Language → LearnerProfile (Gemini/Groq).** Reply `go` to build it.
+**Commit 5 pushed** — Phase 4 verified 2026-10-01. Next: **Phase 5 — Assessment Engine.**

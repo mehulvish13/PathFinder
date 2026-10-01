@@ -1,15 +1,19 @@
 # 🚀 PathFinder — Future Roadmap
 
-## 📋 Current Status (V1)
+## 📋 Current Status (Commit 5, 2026-10-01, `7d253d5`)
 
-**Phase 2A Complete:** Core engine working
+**Phase 4 Complete — roadmap + progress platform committed:**
 - ✅ Skill Gap Engine
-- ✅ Recommendation Engine  
+- ✅ Recommendation Engine
 - ✅ Path Generator
-- ✅ Learner Profile (Pydantic schema)
-- ✅ API endpoints working
+- ✅ Learner Profile (Pydantic schema + Gemini `/extract`)
+- ✅ Resource Recommendation (8 curated resources, 50/20/20/10 matcher)
+- ✅ Roadmap Generator (phases, milestones, `next_action`, `estimated_weeks`)
+- ✅ Progress Data Model (`Activity`, `Progress`, `MasteryHistory`)
+- ✅ Progress API (7 endpoints: activity, complete, progress, skills, dashboard, notifications, certificate)
+- ✅ API endpoints working (8-endpoint smoke PASS)
 
-**Next:** Phase 2B — Natural Language → LearnerProfile (Gemini/Groq)
+**Next:** Phase 5 — Assessment Engine (quiz scoring → real mastery updates → adaptive roadmap)
 
 ---
 
@@ -173,15 +177,16 @@ Resource Recommendation Engine
 Courses + Projects + Videos + Assessments
 ```
 
-### Phase 4: Progress Tracking
-**Timeline:** After Phase 3
+### Phase 4: Progress Tracking ✅ DONE (Commit 5, 2026-10-01, `7d253d5`)
+**Timeline:** Complete
 **Goal:** Dashboard with milestones and mastery tracking
 
-**Features:**
-- Progress visualization
-- Mastery history over time
-- Milestone tracking
-- Completion certificates
+**Delivered:**
+- ✅ Roadmap Generator (Phases, Milestones, Time Estimation, Next Action, `estimated_weeks`)
+- ✅ Progress Data Model (Activity, Progress, MasteryHistory Tables)
+- ✅ Progress API (`POST /activity`, `POST /complete`, `GET /{learner_id}`, `GET /{learner_id}/skills`)
+- ✅ Dashboard (`GET /api/progress/dashboard/{learner_id}` — progress bar, skill bars, milestones, next action, real-hours ETA)
+- ✅ Notifications & Certificate System (`GET /notifications/{id}`, `GET /certificate/{id}` — SHA-256, 100% only)
 
 **Architecture:**
 ```
@@ -215,18 +220,23 @@ Predictive Recommendations
 
 ## 🛠️ Technical Roadmap
 
-### Immediate (V1 Improvements)
+### Immediate (Phase 5)
 - [ ] Assessment system with skill mapping
-- [ ] Mastery calculation service
-- [ ] Path adaptation logic
+- [ ] Mastery calculation service (replacing V1 `+10 per completion` heuristic)
+- [ ] Path adaptation logic (mastery → gaps → roadmap change)
 - [ ] AI explanation endpoints
 - [ ] Demo UI polish
 
+### Done since this list was written (Commit 5)
+- [x] Gemini profile extraction (`POST /api/profile/extract`)
+- [x] Resource recommendation engine (Commit 4)
+- [x] Basic progress tracking + dashboard (Commit 5)
+
 ### Short-term (V2)
-- [ ] Gemini/Groq integration (Phase 2B)
-- [ ] Natural language profile extraction
-- [ ] Resource recommendation engine
-- [ ] Basic progress tracking
+- [ ] Groq fallback provider (currently Gemini-only; swap documented in `llm_service.py`)
+- [x] Natural language profile extraction (done — Commit 3)
+- [x] Resource recommendation engine (done — Commit 4)
+- [x] Basic progress tracking (done — Commit 5)
 
 ### Medium-term (V3)
 - [ ] React frontend
@@ -267,7 +277,7 @@ Predictive Recommendations
 ## 📈 Scaling Plan
 
 ### Data Scaling
-- **V1:** 50 skills, 20 resources, 5 careers
+- **V1 (actual, Commit 5):** 77 skills, 8 resources, 5 careers
 - **V2:** 100 skills, 100 resources, 10 careers
 - **V3:** 200 skills, 500 resources, 20 careers
 - **V4:** Dynamic discovery, unlimited resources

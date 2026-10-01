@@ -275,6 +275,28 @@ All 200: GenAI / DataSci / Backend / Sparse (`skills: []`). Canonical IDs verifi
 
 `backend/docs/INTERVIEW_PREP_COMMIT3.md` + `INTERVIEW:` comments in `profile.py`, `profile route`, `llm_service.py`, `data_loader.py`.
 
+## 11. Commit 5 Addendum — Roadmap Personalization + Progress Platform (2026-10-01, `7d253d5`)
+
+### What changed
+
+- **`POST /api/path/generate` request** — optional `target_career` (canonical id or display name, resolved via `load_careers()`: `data_scientist` → `Data Scientist`) + `hours_per_week`; defaults (`GenAI Engineer`, `10.0`) keep old clients working.
+- **`Roadmap` schema** — additive `estimated_weeks` (`total_hours / hours_per_week`, guarded `None` when pace unknown).
+- **Dashboard `estimated_time_remaining`** — sums real `estimated_hours` per remaining resource (fallback `1.0h` for ad-hoc ids) instead of `count × 1.0`.
+- **`target_mastery = 70.0`** kept as documented V1 default (per-career `required_mastery` lookup deferred to Assessment phase).
+- **7 progress endpoints** (Commit 5): `POST /activity`, `POST /complete` (idempotent), `GET /{id}`, `GET /{id}/skills`, `GET /dashboard/{id}`, `GET /notifications/{id}`, `GET /certificate/{id}` (SHA-256, 403 until 100%, 404 when empty).
+
+### Why it matters
+
+Before, every roadmap was labeled `GenAI Engineer` with an assumed 10 hrs/week — a Data Scientist learner got another career's roadmap. Now the roadmap carries the learner's actual career and pace through to `estimated_weeks`, while old clients still get valid responses.
+
+### Tests (2026-10-01)
+
+KB integrity PASS (77/5/70/65/8, 0 missing). 8-endpoint `TestClient` smoke PASS: DS label check + backward-compat check + full progress flow.
+
+### Interview prep
+
+`backend/docs/INTERVIEW_PREP_COMMIT5.md` + `INTERVIEW:` comments in `path.py`, `roadmap_generator.py`, `progress.py` routes, `roadmap.py` schema.
+
 ## 9. Git
 
 After verification:

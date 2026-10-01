@@ -2,6 +2,26 @@
 
 AI-Powered Personalized Learning Path Recommender
 
+## 🟢 COMMIT 5 — Phase 4 Complete (2026-10-01, `7d253d5`)
+
+**Status**: Roadmap + Progress + Dashboard + Notifications + Certificate ✅ Committed
+
+**Endpoints**:
+- `POST /api/profile/create` — Validate & store learner profile
+- `POST /api/profile/extract` — Natural language → `LearnerProfile` via Gemini
+- `POST /api/path/generate` — `skill_gaps`, `recommendations`, `learning_path` (+`resources[]`), `roadmap` (optional `target_career`, `hours_per_week` — backward compatible; `estimated_weeks` in response)
+- `POST /api/progress/activity` — Record learner activity
+- `POST /api/progress/complete` — Mark resource completed (idempotent, +10 mastery heuristic)
+- `GET /api/progress/{learner_id}` — Overall progress + next action
+- `GET /api/progress/{learner_id}/skills` — Skill mastery levels
+- `GET /api/progress/dashboard/{learner_id}` — Unified dashboard (progress bar, skills, milestones, next action, real-hours ETA)
+- `GET /api/progress/notifications/{learner_id}` — Notifications (next action, milestones, streaks)
+- `GET /api/progress/certificate/{learner_id}` — Certificate (100% only, SHA-256 verified)
+
+**Verified 2026-10-01 (Commit 5)**: KB integrity PASS (77/5/70/65/8, 0 missing). 8-endpoint smoke PASS via `TestClient`. Next: Assessment Engine.
+
+---
+
 ## 🟢 COMMIT 4 — Resource Recommendation Engine Ready
 
 **Status**: Skill Gap + Path + AI Profiling (77 skills, 5 careers) + Resource Matcher (8 curated resources, 50/20/20/10 scoring) ✅ Complete
@@ -154,8 +174,15 @@ This modular design ensures:
 ### API Endpoints
 
 - `POST /api/profile/create` - Create/validate learner profile (Phase 2A)
-- `POST /api/profile/extract` - **NEW** Natural language → LearnerProfile via Gemini (Phase 2B, Commit 3)
-- `POST /api/path/generate` - Generate complete learning path from current skills and career goals
+- `POST /api/profile/extract` - Natural language → LearnerProfile via Gemini (Phase 2B, Commit 3)
+- `POST /api/path/generate` - Skill gaps → recommendations → learning path + `resources[]` + `roadmap` (Commit 5: optional `target_career`, `hours_per_week`)
+- `POST /api/progress/activity` - Record learner activity (Commit 5)
+- `POST /api/progress/complete` - Mark resource completed (Commit 5)
+- `GET /api/progress/{learner_id}` - Overall progress + next action (Commit 5)
+- `GET /api/progress/{learner_id}/skills` - Skill mastery levels (Commit 5)
+- `GET /api/progress/dashboard/{learner_id}` - Unified dashboard (Commit 5)
+- `GET /api/progress/notifications/{learner_id}` - Notifications (Commit 5)
+- `GET /api/progress/certificate/{learner_id}` - Certificate at 100% (Commit 5)
 - `GET /` , `GET /health` - Health
 
 1. Programming Foundations
@@ -363,9 +390,9 @@ Recommendation Engine ✅ (Commit 2)
    AI Assistant (LLM)
 ```
 
-**Current State**: Layers 1-6 are complete (Natural Language → Learner Profile (AI) → Skill Gap → Recommendation → Path)
-**Next Step**: Phase 3 — Resource Recommendation Engine (Skill → courses/projects) + Skill Gap → Path wiring for extracted profiles of LearnerProfile from natural language
-**Focus**: `POST /api/profile/create` is ready; next wires `"I want GenAI in 6 months, 10hrs/week"` → `LearnerProfile`
+**Current State**: Layers 1-9 are complete (Natural Language → Learner Profile (AI) → Skill Gap → Recommendation → Path → Resources → Roadmap → Progress → Dashboard/Certificate)
+**Next Step**: Phase 5 — Assessment Engine (quiz scoring → real mastery updates → adaptive roadmap)
+**Focus**: Commit 5 `7d253d5` verified 2026-10-01; `frontend/` empty — UI is Phase 8
 
 ---
 

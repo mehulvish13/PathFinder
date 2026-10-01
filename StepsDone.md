@@ -22,7 +22,7 @@ PHASE 4D Dashboard ✅ ← COMPLETED
    ↓
 PHASE 4E Notifications & Certificate ✅ ← COMPLETED
    ↓
-COMMIT 5 ✅ ← READY TO COMMIT
+COMMIT 5 ✅ ← COMMITTED (`7d253d5`, 2026-10-01)
 ```
 
 **Complete Pipeline:**
@@ -33,7 +33,7 @@ COMMIT 5 ✅ ← READY TO COMMIT
 - Phase 4D: Dashboard API (visual progress bar, skill mastery, milestones, next action)
 - Phase 4E: Notifications & Certificate (encouragement, completion verification)
 
-**All Phase 4 components implemented and compiling on Python 3.13. Ready for Commit 5.**
+**All Phase 4 components committed 2026-10-01 (`7d253d5`). See COMMIT 5 + personalization fixes above.**
 
 **Commit 5 personalization fixes (2026-10-01, verified):**
 - `POST /api/path/generate` accepts optional `target_career` (canonical id or name, e.g. `data_scientist` → `Data Scientist`) + `hours_per_week`; defaults preserve old clients (`GenAI Engineer`, `10.0`).
@@ -44,7 +44,7 @@ COMMIT 5 ✅ ← READY TO COMMIT
 
 ---
 
-## 🟢 COMMIT 5 — Phase 4 Complete — READY TO COMMIT (2026-09-13)
+## 🟢 COMMIT 5 — Phase 4 Complete — COMMITTED (2026-10-01, `7d253d5`)
 
 **Problem solved:** Phase 3 gave us *"What should this learner learn, and from which resources?"* Phase 4A transforms the raw, flat topological sequence into a structured, human-centered **Roadmap** with digestible 3-skill phases, meaningful milestones (e.g., "AI Foundations Ready"), defensive time estimations, and an unambiguous immediate `next_action` card.
 
@@ -206,9 +206,9 @@ COMMIT 5 (After Phase 4E)
 
 **Files updated:**
 - `backend/app/schemas/progress.py` — Added `DashboardResponse` schema with progress bar visualization
-- `backend/app/api/routes/progress.py` — Added `GET /api/dashboard/{learner_id}` endpoint
+- `backend/app/api/routes/progress.py` — Added `GET /api/progress/dashboard/{learner_id}` endpoint
 
-**Dashboard Endpoint:** `GET /api/dashboard/{learner_id}`
+**Dashboard Endpoint:** `GET /api/progress/dashboard/{learner_id}`
 - Returns `DashboardResponse` with:
   - `overall_progress` (float percentage)
   - `progress_bar` (string visualization like "██████░░░░ 68%")

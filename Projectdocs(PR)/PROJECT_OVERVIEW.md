@@ -1,5 +1,7 @@
 # 🧠 PathFinder Project Overview
 
+> **Status (2026-10-01): Commit 5 `7d253d5` — Phase 4 committed (roadmap + progress + dashboard + notifications + certificate). Next: Assessment Engine.**
+
 ## 🔥 What Makes PathFinder Different
 
 ### 1. Starts from the learner, not from a fixed course list
