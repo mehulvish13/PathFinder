@@ -1,5 +1,292 @@
 # Steps Done - PathFinder Backend Foundation
 
+## 🟢 PHASE 4A — Roadmap Generator — DONE (2026-09-13)
+
+**Where we are:**
+```text
+Commit 1 Foundation ✅
+   ↓
+Commit 2 Skill Gap + Learning Path Engine ✅
+   ↓
+Commit 3 AI Learner Profiling ✅
+   ↓
+Commit 4 Resource Recommendation Engine ✅
+   ↓
+PHASE 4A Roadmap Generator ✅ ← COMPLETED
+   ↓
+PHASE 4B Progress Data Model ✅ ← COMPLETED
+   ↓
+PHASE 4C Progress API ✅ ← COMPLETED
+   ↓
+PHASE 4D Dashboard ✅ ← COMPLETED
+   ↓
+PHASE 4E Notifications & Certificate ✅ ← COMPLETED
+   ↓
+COMMIT 5 ✅ ← READY TO COMMIT
+```
+
+**Complete Pipeline:**
+- Phase 3: Skill Gap → Recommendation → Learning Path → Resource Matching
+- Phase 4A: Learning Path → Roadmap (Phases, Milestones, Time Estimation, Next Action)
+- Phase 4B: Progress Data Model (Activity, Progress, MasteryHistory tables)
+- Phase 4C: Progress API (activity, complete, progress, skills, dashboard, notifications, certificate)
+- Phase 4D: Dashboard API (visual progress bar, skill mastery, milestones, next action)
+- Phase 4E: Notifications & Certificate (encouragement, completion verification)
+
+**All Phase 4 components implemented and compiling on Python 3.13. Ready for Commit 5.**
+
+**Commit 5 personalization fixes (2026-10-01, verified):**
+- `POST /api/path/generate` accepts optional `target_career` (canonical id or name, e.g. `data_scientist` → `Data Scientist`) + `hours_per_week`; defaults preserve old clients (`GenAI Engineer`, `10.0`).
+- `Roadmap` adds optional `estimated_weeks` (`total_hours / hours_per_week`, guarded).
+- Dashboard `estimated_time_remaining` sums real `estimated_hours` per remaining resource (fallback `1.0h` for ad-hoc ids).
+- `target_mastery = 70.0` kept as documented V1 default (per-career lookup deferred to Assessment phase).
+- Verified: KB integrity PASS (0 missing), 8-endpoint smoke PASS including DS-career label check + backward-compat check.
+
+---
+
+## 🟢 COMMIT 5 — Phase 4 Complete — READY TO COMMIT (2026-09-13)
+
+**Problem solved:** Phase 3 gave us *"What should this learner learn, and from which resources?"* Phase 4A transforms the raw, flat topological sequence into a structured, human-centered **Roadmap** with digestible 3-skill phases, meaningful milestones (e.g., "AI Foundations Ready"), defensive time estimations, and an unambiguous immediate `next_action` card.
+
+**Files (verified):**
+- `backend/app/schemas/roadmap.py` — Pydantic models: `RoadmapResource`, `RoadmapSkill`, `Milestone`, `RoadmapPhase`, `Roadmap`.
+- `backend/app/services/roadmap/roadmap_generator.py` — `generate_roadmap()`, `build_phase()`, `get_next_action()`. Fixed 3-skills-per-phase chunking for V1; defensive resource hour parsing.
+- `backend/app/services/roadmap/__init__.py` — Clean export of `generate_roadmap`.
+- `backend/app/api/routes/path.py` — Integrated roadmap generator directly into `POST /api/path/generate` response (`skill_gaps`, `recommendations`, `learning_path`, `roadmap`).
+- `Phase 4.md` / `PHASE_4.md` — Complete documentation for Phase 4 architecture and all subphases (4A-4E).
+- `Phase 4 Interview QA.md` — Technical and system design interview preparation with code examples and STAR behavioral answers.
+
+**Verified (not invented):**
+- Test with 3 skills (Python, ML, Embeddings) $\rightarrow$ 1 phase, total estimated hours = 63.0, next action = "Start learning python_fundamentals."
+- Clean compilation on Python 3.13 across all modified files.
+
+---
+
+## 🟢 PHASE 4B — Progress Data Model — DONE (2026-09-13)
+
+**Where we are:**
+```text
+PHASE 4A Roadmap Generator ✅ ← COMPLETED
+   ↓
+PHASE 4B Progress Data Model ✅ ← COMPLETED (2026-09-13)
+   ↓
+PHASE 4C Progress API ✅ ← COMPLETED (2026-09-13)
+   ↓
+PHASE 4D Dashboard (Upcoming)
+   ↓
+PHASE 4E Notifications & Certificate (Upcoming)
+   ↓
+COMMIT 5 (After Phase 4E)
+```
+
+**Problem solved:** Phase 4B implements the data layer for tracking what learners actually do. Three core relational tables (`Activity`, `Progress`, `MasteryHistory`) provide the foundation for progress visualization, adaptive learning, and milestone tracking.
+
+**Files created:**
+- `backend/app/models/activity.py` — `Activity` model with `learner_id`, `resource_id`, `activity_type`, `started_at`, `completed_at`. Append-only event log.
+- `backend/app/models/progress.py` — `Progress` model with `learner_id`, `resource_id`, `status`, `progress_percent`, `completed_at`. Mutable current state snapshot.
+- `backend/app/models/mastery_history.py` — `MasteryHistory` model with `learner_id`, `skill_id`, `mastery`, `recorded_at`, `source`. Longitudinal skill evolution tracking.
+- `backend/app/models/__init__.py` — Updated to import all three new models alongside existing models (Learner, Skill, LearnerSkill, Career, CareerSkill, Prerequisite).
+- `backend/app/main.py` — Updated to import `Activity`, `Progress`, `MasteryHistory` so `Base.metadata.create_all()` registers all tables on startup.
+
+**Schema details:**
+- **Activity** (`activities` table):
+  - `id` (Integer, PK), `learner_id` (FK → learners.id), `resource_id` (String), `activity_type` (String), `started_at` (DateTime, default=func.now()), `completed_at` (DateTime, nullable)
+  - Append-only event log for granular user telemetry (started, completed, practiced, quiz_attempt)
+- **Progress** (`progress` table):
+  - `id` (Integer, PK), `learner_id` (FK → learners.id), `resource_id` (String), `status` (String, default="not_started"), `progress_percent` (Float, default=0.0), `completed_at` (DateTime, nullable)
+  - Mutable state snapshot for immediate UI rendering
+- **MasteryHistory** (`mastery_history` table):
+  - `id` (Integer, PK), `learner_id` (FK → learners.id), `skill_id` (FK → skills.id), `mastery` (Float), `recorded_at` (DateTime, default=func.now()), `source` (String)
+  - Longitudinal time-series for adaptive learning (self_assessment, quiz, project, ai_estimate)
+
+**Verified (not invented):**
+- All three model files compile successfully on Python 3.13
+- `app/models/__init__.py` updated with imports for Activity, Progress, MasteryHistory
+- `app/main.py` updated to import all three new models for `Base.metadata.create_all()`
+- `activity.py` uses `from sqlalchemy.sql import func` for `func.now()` default timestamps
+- `progress.py` uses `from sqlalchemy.sql import func` for `func.now()` default timestamps
+- `mastery_history.py` uses `from sqlalchemy.sql import func` for `func.now()` default timestamps
+- Foreign key relationships correctly reference `learners.id`, `skills.id`
+
+**Next Step:** Begin Phase 4C (Progress API endpoints) implementation.
+
+---
+
+## 🟢 PHASE 4C — Progress API — DONE (2026-09-13)
+
+**Where we are:**
+```text
+PHASE 4A Roadmap Generator ✅ ← COMPLETED
+   ↓
+PHASE 4B Progress Data Model ✅ ← COMPLETED
+   ↓
+PHASE 4C Progress API ✅ ← YOU ARE HERE (Completed 2026-09-13)
+   ↓
+PHASE 4D Dashboard (Upcoming)
+   ↓
+PHASE 4E Notifications & Certificate (Upcoming)
+   ↓
+COMMIT 5 (After Phase 4E)
+```
+
+**Problem solved:** Phase 4C exposes the progress tracking functionality through REST API endpoints so the frontend can interact with the progress data model.
+
+**Files created:**
+- `backend/app/schemas/progress.py` — Pydantic schemas: `ActivityRequest`, `CompleteRequest`, `ProgressResponse`, `SkillMasteryResponse`, `LearnerProgressResponse`
+- `backend/app/api/routes/progress.py` — FastAPI router with endpoints:
+  - `POST /api/progress/activity` — Record learner activity
+  - `POST /api/progress/complete` — Mark resource as completed
+  - `GET /api/progress/{learner_id}` — Get overall progress and next action
+  - `GET /api/progress/{learner_id}/skills` — Get skill mastery levels
+- `backend/app/schemas/__init__.py` — Updated to export all progress schemas
+- `backend/app/main.py` — Updated to import and include the progress router
+
+**Endpoints:**
+
+1. **`POST /api/progress/activity`** — Request body: `{learner_id: int, resource_id: str, activity_type: str}`
+   - Creates an `Activity` record in the database
+   - Returns: `{message, activity_id, activity_type, started_at}`
+
+2. **`POST /api/progress/complete`** — Request body: `{learner_id: int, resource_id: str}`
+   - Upserts `Progress` record (status=completed, progress_percent=100.0)
+   - Creates `Activity` log entry
+   - Returns: `{message, resource_id, progress_percent, status}`
+
+3. **`GET /api/progress/{learner_id}`** — Returns: `LearnerProgressResponse`
+   - Calculates `overall_progress` (percentage)
+   - Counts total/completed/in-progress/not-started resources
+   - Aggregates `milestones` from `MasteryHistory`
+   - Determines `next_action` based on progress state
+
+4. **`GET /api/progress/{learner_id}/skills`** — Returns: `List[SkillMasteryResponse]`
+   - Retrieves latest mastery per skill from `MasteryHistory`
+   - Calculates gap = target_mastery - current_mastery
+   - Determines status (ready/in_progress)
+
+**Architecture:**
+```
+Frontend
+    │
+    ├── POST /api/progress/activity ──► Activity model
+    ├── POST /api/progress/complete ──► Progress + Activity models
+    ├── GET /api/progress/{learner_id} ──► Progress + MasteryHistory models
+    └── GET /api/progress/{learner_id}/skills ──► MasteryHistory + Skill models
+```
+
+**Verified (not invented):**
+- All Phase 4C files compile successfully on Python 3.13
+- `progress.py` schemas use Pydantic `BaseModel` with proper type annotations
+- `progress.py` router uses FastAPI `Depends(get_db)` for database session injection
+- `progress.py` router uses `response_model` for type-safe responses
+- `main.py` imports and includes `progress_router` with prefix `/api/progress`
+- `schemas/__init__.py` exports all new schemas
+
+**Next Step:** Begin Phase 4D (Dashboard visualization components).
+
+---
+
+## 🟢 PHASE 4D — Dashboard — DONE (2026-09-13)
+
+**Where we are:**
+```text
+PHASE 4A Roadmap Generator ✅ ← COMPLETED
+   ↓
+PHASE 4B Progress Data Model ✅ ← COMPLETED
+   ↓
+PHASE 4C Progress API ✅ ← COMPLETED
+   ↓
+PHASE 4D Dashboard ✅ ← YOU ARE HERE (Completed 2026-09-13)
+   ↓
+PHASE 4E Notifications & Certificate (Upcoming)
+   ↓
+COMMIT 5 (After Phase 4E)
+```
+
+**Problem solved:** Phase 4D provides a unified dashboard view that aggregates all progress data into a single, cohesive response for the frontend to render. The dashboard focuses on four key widgets: Overall Progress, Skill Mastery, Milestones, and Next Action.
+
+**Files updated:**
+- `backend/app/schemas/progress.py` — Added `DashboardResponse` schema with progress bar visualization
+- `backend/app/api/routes/progress.py` — Added `GET /api/dashboard/{learner_id}` endpoint
+
+**Dashboard Endpoint:** `GET /api/dashboard/{learner_id}`
+- Returns `DashboardResponse` with:
+  - `overall_progress` (float percentage)
+  - `progress_bar` (string visualization like "██████░░░░ 68%")
+  - `total_resources`, `completed_resources`, `in_progress_resources`, `not_started_resources`
+  - `skill_mastery` (list of `SkillMasteryResponse`)
+  - `milestones` (from MasteryHistory)
+  - `next_action` (determined from progress state)
+  - `estimated_time_remaining` (calculated from remaining resources)
+
+**Four Dashboard Widgets:**
+1. **Overall Progress Bar** — Visual bar with percentage (e.g., "██████░░░░ 68%")
+2. **Skill Mastery** — List of skills with current vs target mastery
+3. **Milestones** — Aggregated from MasteryHistory with timestamps
+4. **Next Action** — Determined dynamically based on progress state
+
+**Verified (not invented):**
+- All Phase 4D files compile successfully on Python 3.13
+- `DashboardResponse` schema uses Pydantic `BaseModel` with proper type annotations
+- Dashboard endpoint uses `response_model=DashboardResponse` for type-safe responses
+- Progress bar visualization correctly renders filled/empty blocks
+- Next action logic handles all cases (not_started, in_progress, all completed)
+- `estimated_time_remaining` calculated from remaining resources
+
+**Next Step:** Begin Phase 4E (Notifications & Certificate system).
+
+---
+
+## 🟢 PHASE 4E — Notifications & Certificate — DONE (2026-09-13)
+
+**Where we are:**
+```text
+PHASE 4A Roadmap Generator ✅ ← COMPLETED
+   ↓
+PHASE 4B Progress Data Model ✅ ← COMPLETED
+   ↓
+PHASE 4C Progress API ✅ ← COMPLETED
+   ↓
+PHASE 4D Dashboard ✅ ← COMPLETED
+   ↓
+PHASE 4E Notifications & Certificate ✅ ← YOU ARE HERE (Completed 2026-09-13)
+   ↓
+COMMIT 5 (Ready to commit)
+```
+
+**Problem solved:** Phase 4E provides encouragement throughout the learning journey and recognizes completion with a verifiable certificate.
+
+**Endpoints added:**
+- `GET /api/progress/notifications/{learner_id}` — Returns personalized notifications (next action, milestones, streaks)
+- `GET /api/progress/certificate/{learner_id}` — Returns completion certificate if 100% complete
+
+**Notifications Types:**
+1. **next_action** — Highlights remaining resources to complete
+2. **milestone** — Celebrates when completing every 3 resources
+3. **streak** — Encourages continued progress for in-progress resources
+
+**Certificate:**
+- Generated SHA-256 hash certificate ID
+- Only available when `completion_percent == 100.0`
+- Returns `CertificateResponse` with learner name, career, skills, date, certificate ID, and verified status
+- Returns 403 if completion < 100%
+- Returns 404 if no progress records found
+
+**Files updated:**
+- `backend/app/schemas/progress.py` — Added `NotificationResponse`, `CertificateResponse` schemas
+- `backend/app/api/routes/progress.py` — Added `GET /api/progress/notifications/{learner_id}` and `GET /api/progress/certificate/{learner_id}` endpoints
+
+**Verified (not invented):**
+- All Phase 4E files compile successfully on Python 3.13
+- `NotificationResponse` and `CertificateResponse` use Pydantic `BaseModel` with proper type annotations
+- Notification generation correctly identifies next action, milestones, and streaks
+- Certificate endpoint correctly checks for 100% completion before granting
+- Certificate ID generated using SHA-256 hash for uniqueness and verification
+- Proper HTTP error handling (403 for incomplete, 404 for no records)
+
+**Next Step:** Commit 5 — Final integration after all Phase 4 components complete.
+
+---
+
 ## 🟢 COMMIT 4 — Resource Recommendation Engine — DONE, Ready to Commit (2026-09-12)
 
 **Where we are:**
