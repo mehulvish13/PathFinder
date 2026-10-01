@@ -140,6 +140,7 @@ git restore backend/app/api/routes/path.py backend/app/services/path/path_genera
 - Commit 3 (2026-09-12): Created `skills_catalog.json` (77), expanded `career_skills` 26→70, `prerequisites` 52→65, `Field(default_factory)`, `Optional[experience_level]`, `POST /api/profile/extract` + 3-layer validation, `data_loader.py` 3-priority, `INTERVIEW_PREP_COMMIT3.md` (this template derived from it).
 - Commit 4 (2026-09-12): Resource engine — `resources.json` (8), `resource_matcher.py` 50/20/20/10, `resources[]` per path skill, `INTERVIEW_PREP_COMMIT4.md`.
 - Commit 5 (2026-10-01, `7d253d5`): Phase 4 — `roadmap_generator.py` (3-skill phases, `estimated_weeks`), `Activity`/`Progress`/`MasteryHistory` models, 7 progress endpoints (activity/complete/progress/skills/dashboard/notifications/certificate), `target_career`+`hours_per_week` personalization, `INTERVIEW_PREP_COMMIT5.md`.
+- Phase 5 (2026-10-01, `62969c5`): Assessment engine — `assessments.json` (20 Qs, 6 skills), `services/assessment/` (bank + 30/70 blend, idempotent submit), `AssessmentAttempt` model, start/submit/get/result endpoints, `INTERVIEW_PREP_COMMIT6.md`.
 
 Next phases: Skill Gap wiring, Recommendation, Resource Engine — same checklist applies.
 

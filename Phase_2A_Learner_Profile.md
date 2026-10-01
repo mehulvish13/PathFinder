@@ -297,6 +297,26 @@ KB integrity PASS (77/5/70/65/8, 0 missing). 8-endpoint `TestClient` smoke PASS:
 
 `backend/docs/INTERVIEW_PREP_COMMIT5.md` + `INTERVIEW:` comments in `path.py`, `roadmap_generator.py`, `progress.py` routes, `roadmap.py` schema.
 
+## 12. Phase 5 Addendum — Assessment Engine (2026-10-01, `62969c5`)
+
+### What changed
+
+- **`backend/data/assessments.json`** — 20 questions, 6 skills, all `skill_id ∈ catalog`.
+- **`services/assessment/`** — deterministic sampling/scoring, 30/70 mastery blend into `MasteryHistory(source=quiz)`, idempotent submit.
+- **`POST /api/assessment/start|submit`, `GET /api/assessment/{id}|{id}/result`** — answers never leaked at start; result carries `gap_before/gap_after`.
+
+### Why it matters
+
+First real feedback loop: quiz 100% → mastery 0→70 → gap 70→0 → `ready`, visible in existing `GET /progress/skills` with zero progress-code changes.
+
+### Tests (2026-10-01)
+
+Bank integrity PASS; 12-check smoke PASS (leak check, resubmit idempotency, 404/400 paths); Phase 4 regression PASS.
+
+### Interview prep
+
+`backend/docs/INTERVIEW_PREP_COMMIT6.md`.
+
 ## 9. Git
 
 After verification:

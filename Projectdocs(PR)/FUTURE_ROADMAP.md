@@ -1,8 +1,16 @@
 # 🚀 PathFinder — Future Roadmap
 
-## 📋 Current Status (Commit 5, 2026-10-01, `7d253d5`)
+## 📋 Current Status (Phase 5, 2026-10-01, `62969c5`)
 
-**Phase 4 Complete — roadmap + progress platform committed:**
+**Assessment Engine committed — first real feedback loop:**
+- ✅ 20-question bank (6 skills, all canonical)
+- ✅ start/submit/result endpoints (answers never leaked, idempotent submit)
+- ✅ 30/70 mastery blend → `MasteryHistory(source=quiz)`
+- ✅ `gap_before/gap_after` in every result (proven: 100% → 0→70 → gap 70→0 → `ready`)
+
+**Next:** Phase 6 — Adaptive Roadmap (assessment result changes the recommended sequence automatically)
+
+**Phase 4 Complete — roadmap + progress platform committed (`7d253d5`):**
 - ✅ Skill Gap Engine
 - ✅ Recommendation Engine
 - ✅ Path Generator
@@ -11,9 +19,9 @@
 - ✅ Roadmap Generator (phases, milestones, `next_action`, `estimated_weeks`)
 - ✅ Progress Data Model (`Activity`, `Progress`, `MasteryHistory`)
 - ✅ Progress API (7 endpoints: activity, complete, progress, skills, dashboard, notifications, certificate)
-- ✅ API endpoints working (8-endpoint smoke PASS)
+- ✅ API endpoints working (8-endpoint smoke PASS, Commit 5)
 
-**Next:** Phase 5 — Assessment Engine (quiz scoring → real mastery updates → adaptive roadmap)
+> Phase 4 history above; assessment details in “Phased Development Plan → Phase 5”.
 
 ---
 
@@ -96,8 +104,8 @@
 
 ## 📊 Phased Development Plan
 
-### Phase 2B: AI Goal Understanding
-**Timeline:** Next
+### Phase 2B: AI Goal Understanding ✅ DONE (Commit 3)
+**Timeline:** Complete
 **Goal:** Natural language → Learner Profile
 
 **Features:**
@@ -197,8 +205,23 @@ Progress Tracker
 Dashboard + Notifications
 ```
 
-### Phase 5: Advanced Adaptation
-**Timeline:** After Phase 4
+### Phase 5: Assessment Engine ✅ DONE (2026-10-01, `62969c5`)
+**Timeline:** Complete
+**Goal:** Real quiz scoring replacing the V1 `+10 per completion` heuristic
+
+**Delivered:**
+- 20-question bank (`backend/data/assessments.json`, 6 skills, all canonical)
+- `POST /assessment/start` (no answer leak) → `POST /submit` (30/70 blend, idempotent) → `GET /{id}` + `/{id}/result`
+- Every result carries `gap_before/gap_after` — the input Phase 6 recalculates from
+
+### Phase 6: Adaptive Roadmap 🔜 NEXT
+**Timeline:** Next
+**Goal:** An assessment result changes the recommended learning sequence automatically
+
+**Objective:** RAG 30% BLOCKED → quiz 85% → RAG READY → prerequisite cleared → next eligible skill moves forward → roadmap recalculates.
+
+### Phase 7: Advanced Adaptation (later)
+**Timeline:** After Phase 6
 **Goal:** ML-based recommendations, population learning
 
 **Features:**
@@ -220,10 +243,10 @@ Predictive Recommendations
 
 ## 🛠️ Technical Roadmap
 
-### Immediate (Phase 5)
-- [ ] Assessment system with skill mapping
-- [ ] Mastery calculation service (replacing V1 `+10 per completion` heuristic)
-- [ ] Path adaptation logic (mastery → gaps → roadmap change)
+### Immediate (Phase 6)
+- [x] Assessment system with skill mapping (done — Phase 5)
+- [x] Mastery calculation service (done — 30/70 blend, Phase 5)
+- [ ] Path adaptation logic (mastery → gaps → roadmap change) ← NEXT
 - [ ] AI explanation endpoints
 - [ ] Demo UI polish
 

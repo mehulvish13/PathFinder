@@ -1,6 +1,6 @@
 # 🧠 PathFinder Project Overview
 
-> **Status (2026-10-01): Commit 5 `7d253d5` — Phase 4 committed (roadmap + progress + dashboard + notifications + certificate). Next: Assessment Engine.**
+> **Status (2026-10-01): Phase 5 `62969c5` — assessment engine committed (20-Q bank, start/submit/result, quiz mastery updates). Next: Phase 6 Adaptive Roadmap.**
 
 ## 🔥 What Makes PathFinder Different
 

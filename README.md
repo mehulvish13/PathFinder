@@ -2,6 +2,20 @@
 
 AI-Powered Personalized Learning Path Recommender
 
+## 🟢 PHASE 5 — Assessment Engine Complete (2026-10-01, `62969c5`)
+
+**Status**: First real learning feedback loop ✅ — `Learn → Assessment → Score → Mastery update → Gap recalc`
+
+**Endpoints**:
+- `POST /api/assessment/start` — Start quiz for a skill (`learner_id`, `skill_id`, `num_questions` 1–10, `required_mastery`); never leaks answers
+- `POST /api/assessment/submit` — Score answers → 30/70 mastery blend → `MasteryHistory(source=quiz)`; idempotent re-POST
+- `GET /api/assessment/{id}` — Attempt detail (public questions + status/score)
+- `GET /api/assessment/{id}/result` — Stored aggregates: `percentage`, `previous/new_mastery`, `gap_before/gap_after`, `ready|needs_work`
+
+**Verified 2026-10-01 (Phase 5)**: 20 questions / 6 skills, bank integrity PASS (0 problems). 12-check smoke PASS: 100% quiz → mastery 0→70 → gap 70→0 → `ready`; `GET /progress/skills` reflects it with zero progress-code changes. Next: Phase 6 Adaptive Roadmap.
+
+---
+
 ## 🟢 COMMIT 5 — Phase 4 Complete (2026-10-01, `7d253d5`)
 
 **Status**: All Phase 4 committed ✅ — `feat: add Phase 4 roadmap + progress tracking system (4A-4E)`
@@ -17,8 +31,11 @@ AI-Powered Personalized Learning Path Recommender
 - `GET /api/progress/dashboard/{learner_id}` — Unified dashboard (progress bar, skills, milestones, next action, real-hours `estimated_time_remaining`)
 - `GET /api/progress/notifications/{learner_id}` — Personalized notifications (next action, milestones, streaks)
 - `GET /api/progress/certificate/{learner_id}` — Completion certificate (100% only, SHA-256 verified)
+- `POST /api/assessment/start` — Start skill quiz (answers never leaked)
+- `POST /api/assessment/submit` — Score → mastery blend → gap recalc (idempotent)
+- `GET /api/assessment/{id}` + `GET /api/assessment/{id}/result` — Attempt detail + stored result
 
-**Verified 2026-10-01 (Commit 5)**: KB integrity PASS (77 skills, 5 careers, 70 career-skills, 65 prerequisites, 8 resources — 0 missing refs). 8-endpoint smoke PASS via `TestClient`, including `data_scientist` → `Data Scientist` roadmap label check + old-client backward-compat check. Next: Assessment Engine.
+**Verified 2026-10-01 (Commit 5)**: KB integrity PASS (77 skills, 5 careers, 70 career-skills, 65 prerequisites, 8 resources — 0 missing refs). 8-endpoint smoke PASS via `TestClient`, including `data_scientist` → `Data Scientist` roadmap label check + old-client backward-compat check. Followed by Phase 5 Assessment Engine (`62969c5`).
 
 ---
 
@@ -268,6 +285,8 @@ This modular design ensures:
 - `POST /api/profile/create` - Create/validate learner profile (Phase 2A)
 - `POST /api/profile/extract` - Natural language → LearnerProfile via Gemini (Phase 2B, Commit 3)
 - `POST /api/path/generate` - Skill gaps → recommendations → learning path + `resources[]` + `roadmap` (optional `target_career`, `hours_per_week`, `learner_level`, `learning_preference`, `max_hours`, `resource_limit` — Commit 5)
+- `POST /api/assessment/start` - Start skill quiz, answers never leaked (Phase 5)
+- `POST /api/assessment/submit` - Score → mastery update → gap recalc (Phase 5)
 - `POST /api/progress/activity` - Record learner activity (Commit 5)
 - `POST /api/progress/complete` - Mark resource completed, idempotent (Commit 5)
 - `GET /api/progress/{learner_id}` - Overall progress + next action (Commit 5)
@@ -317,8 +336,9 @@ backend/
 │   │   ├── recommendation/
 │   │   ├── resources/   # resource_matcher.py — 50/20/20/10 deterministic scoring (Commit 4)
 │   │   ├── roadmap/     # roadmap_generator.py — phases/milestones/next_action (Commit 5)
+│   │   ├── assessment/  # question_bank.py + assessment_service.py — deterministic scoring, 30/70 mastery blend (Phase 5)
 │   │   └── path/
-│   ├── api/routes/      # profile.py (/create + /extract), path.py (+target_career/hours_per_week), progress.py (7 endpoints)
+│   ├── api/routes/      # profile.py (/create + /extract), path.py (+target_career/hours_per_week), progress.py (7 endpoints), assessment.py (start/submit/get/result)
 │   └── data_loader.py   # canonical catalog loader (skills_catalog.json priority)
 ├── data/
 │   ├── skills_catalog.json   # NEW — 77 canonical skills (single source of truth)
@@ -328,11 +348,13 @@ backend/
 │   ├── career_skills.json    # 70 rows — all 5 careers mapped (genai 26, ai 10, ml 11, data_sci 12, backend 11)
 │   ├── resources.json
 │   ├── projects.json
-│   └── assessments/
+│   ├── assessments.json  # 20 questions, 6 skills, all IDs canonical (Phase 5)
+│   └── assessments/      # empty dir (reserved)
 ├── docs/
 │   ├── INTERVIEW_PREP_COMMIT3.md
 │   ├── INTERVIEW_PREP_COMMIT4.md
 │   └── INTERVIEW_PREP_COMMIT5.md  # roadmap/progress/dashboard Q&A (Commit 5)
+│   └── INTERVIEW_PREP_COMMIT6.md  # assessment engine Q&A (Phase 5)
 └── requirements.txt      # + google-genai, python-dotenv
 ```
 
@@ -413,6 +435,7 @@ No output = valid JSON.
 ✓ **AI Learner Profiling (Gemini)** — `POST /api/profile/extract` with 3-layer validation (prompt → filter → Pydantic)
 ✓ **Resource Recommendation (Commit 4)** — 8 curated resources, 50/20/20/10 matcher, `resources[]` per skill
 ✓ **Phase 4 Roadmap + Progress (Commit 5, `7d253d5`)** — 3-skill phases with milestones/`next_action`/`estimated_weeks`; Activity/Progress/MasteryHistory tables; 7 progress endpoints (activity, complete, progress, skills, dashboard, notifications, certificate)
+✓ **Phase 5 Assessment Engine (`62969c5`)** — 20-question bank (6 skills); start/submit/result endpoints; 30/70 mastery blend to `MasteryHistory(source=quiz)`; `gap_before/gap_after` proves the loop
 
 ## Git Setup
 
@@ -483,22 +506,22 @@ Recommendation Engine ✅ (Commit 2)
                  ↓
    Roadmap + Progress + Dashboard ✅ ← Commit 5 (`7d253d5`)
                  ↓
-   Assessment Engine                 ← NEXT (Phase 5)
+   Assessment Engine ✅              ← Phase 5 (`62969c5`)
                  ↓
-   Real Mastery Updates → Adaptive Roadmap
+   Adaptive Roadmap                  ← NEXT (Phase 6)
                  ↓
-    AI Assistant (LLM)
+   Real Mastery Updates → AI Assistant (LLM)
 ```
 
-**Current State**: Layers 1-9 are complete (Natural Language → Learner Profile (AI) → Skill Gap → Recommendation → Path → Resources → Roadmap → Progress → Dashboard/Certificate)
-**Next Step**: Phase 5 — Assessment Engine (quiz scoring → real mastery updates → adaptive roadmap), replacing the V1 `+10 per completion` heuristic
-**Focus**: `POST /api/path/generate` + 7 progress endpoints verified 2026-10-01; next builds `services/assessment/` + `api/routes/assessment.py`
+**Current State**: Layers 1-10 are complete (… → Roadmap → Progress → Dashboard/Certificate → Assessment → quiz mastery updates)
+**Next Step**: Phase 6 — Adaptive Roadmap (an assessment result must change the recommended sequence automatically)
+**Focus**: `62969c5` verified 2026-10-01; result already carries `gap_before/gap_after` for the recalc
 
 ---
 
 ## 🧭 PathFinder Status So Far — Commit 5: Roadmap + Progress Platform (2026-10-01)
 
-We have built the **core backend intelligence + learner profile bridge + canonical knowledge base + AI extraction + resources + roadmap + progress tracking**. Think of it like a car — engine, knowledge, driver intake, and now the **dashboard and trip computer** work; next is the **adaptive cruise control** (assessment → mastery → adaptation).
+We have built the **core backend intelligence + learner profile bridge + canonical knowledge base + AI extraction + resources + roadmap + progress tracking + assessment**. Think of it like a car — engine, knowledge, driver intake, dashboard, and now the **examiner** work; next is the **adaptive cruise control** (roadmap recalculation from quiz results).
 
 ```
                  PATHFINDER
@@ -600,14 +623,18 @@ e.g. `Step 4: RAG | 0/75 | Critical | Why: prerequisite retrieval skills must be
 
 > Status: **Commit 5 `7d253d5` (2026-10-01)** — roadmap + progress platform, real foundation + dashboard.
 
-### 🚀 NEXT: Phase 5 — Assessment Engine
+### 🚀 NEXT: Phase 6 — Adaptive Roadmap
 
-Commit 5 finished the **recommendation + tracking product** (`Profile → Gaps → Path → Resources → Roadmap → Progress → Dashboard → Certificate`).
+Phase 5 finished the **measurement loop** (`Learn → Assessment → Score → Mastery → Gaps recalculated`).
 
-Phase 5 makes it **truly adaptive**:
+Phase 6 closes it — **an assessment result changes the recommended sequence automatically**:
 
 ```
-Learn → Assessment → Score → Mastery update → Gaps recalculated → Roadmap adapts → AI explains
+Before assessment:  RAG 30% BLOCKED → learn Vector DB first
+        ↓ RAG quiz 85%
+After:              RAG 85% READY → prerequisite cleared → next eligible skill moves forward
+        ↓
+Roadmap recalculates → Next action updates
 ```
 
 User says: *“I’m a 3rd year student. I know Python and basic ML. I want GenAI Engineer in 6 months, 10 hrs/week, project-based.”*
@@ -635,6 +662,7 @@ Commit 1  feat: initialize PathFinder foundation
 Commit 2  feat: implement skill gap and learning path engine
 Commit 3  feat: add canonical skill catalog and AI-powered learner profiling
 Commit 4  feat: add personalized resource recommendation engine
-Commit 5  feat: add Phase 4 roadmap + progress tracking system (4A-4E) ← YOU ARE HERE (`7d253d5`, 2026-10-01)
+Commit 5  feat: add Phase 4 roadmap + progress tracking system (4A-4E) (`7d253d5`, 2026-10-01)
+Phase 5  feat: add Phase 5 assessment engine (`62969c5`, 2026-10-01) ← YOU ARE HERE
 ```
-**Commit 5 pushed** — Phase 4 verified 2026-10-01. Next: **Phase 5 — Assessment Engine.**
+**Phase 5 pushed** — assessment loop verified 2026-10-01. Next: **Phase 6 — Adaptive Roadmap.**

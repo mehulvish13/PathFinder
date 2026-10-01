@@ -2,6 +2,20 @@
 
 AI-Powered Personalized Learning Path Recommender
 
+## 🟢 PHASE 5 — Assessment Engine Complete (2026-10-01, `62969c5`)
+
+**Status**: First real learning feedback loop ✅ — `Learn → Assessment → Score → Mastery update → Gap recalc`
+
+**Endpoints**:
+- `POST /api/assessment/start` — Start quiz (`learner_id`, `skill_id`, `num_questions` 1–10); answers never leaked
+- `POST /api/assessment/submit` — Score → 30/70 mastery blend → `MasteryHistory(source=quiz)`; idempotent
+- `GET /api/assessment/{id}` — Attempt detail
+- `GET /api/assessment/{id}/result` — `percentage`, `previous/new_mastery`, `gap_before/gap_after`, `ready|needs_work`
+
+**Verified 2026-10-01 (Phase 5)**: 20 questions / 6 skills, bank integrity PASS. 12-check smoke PASS: 100% → mastery 0→70 → gap 70→0 → `ready`. Next: Phase 6 Adaptive Roadmap.
+
+---
+
 ## 🟢 COMMIT 5 — Phase 4 Complete (2026-10-01, `7d253d5`)
 
 **Status**: Roadmap + Progress + Dashboard + Notifications + Certificate ✅ Committed
@@ -18,7 +32,7 @@ AI-Powered Personalized Learning Path Recommender
 - `GET /api/progress/notifications/{learner_id}` — Notifications (next action, milestones, streaks)
 - `GET /api/progress/certificate/{learner_id}` — Certificate (100% only, SHA-256 verified)
 
-**Verified 2026-10-01 (Commit 5)**: KB integrity PASS (77/5/70/65/8, 0 missing). 8-endpoint smoke PASS via `TestClient`. Next: Assessment Engine.
+**Verified 2026-10-01 (Commit 5)**: KB integrity PASS (77/5/70/65/8, 0 missing). 8-endpoint smoke PASS via `TestClient`. Followed by Phase 5 Assessment Engine (`62969c5`).
 
 ---
 
@@ -183,6 +197,9 @@ This modular design ensures:
 - `GET /api/progress/dashboard/{learner_id}` - Unified dashboard (Commit 5)
 - `GET /api/progress/notifications/{learner_id}` - Notifications (Commit 5)
 - `GET /api/progress/certificate/{learner_id}` - Certificate at 100% (Commit 5)
+- `POST /api/assessment/start` - Start skill quiz, answers never leaked (Phase 5)
+- `POST /api/assessment/submit` - Score → mastery update → gap recalc (Phase 5)
+- `GET /api/assessment/{id}` + `GET /api/assessment/{id}/result` - Attempt detail + stored result (Phase 5)
 - `GET /` , `GET /health` - Health
 
 1. Programming Foundations
@@ -390,9 +407,9 @@ Recommendation Engine ✅ (Commit 2)
    AI Assistant (LLM)
 ```
 
-**Current State**: Layers 1-9 are complete (Natural Language → Learner Profile (AI) → Skill Gap → Recommendation → Path → Resources → Roadmap → Progress → Dashboard/Certificate)
-**Next Step**: Phase 5 — Assessment Engine (quiz scoring → real mastery updates → adaptive roadmap)
-**Focus**: Commit 5 `7d253d5` verified 2026-10-01; `frontend/` empty — UI is Phase 8
+**Current State**: Layers 1-10 are complete (… → Roadmap → Progress → Dashboard/Certificate → Assessment → quiz mastery updates)
+**Next Step**: Phase 6 — Adaptive Roadmap (assessment result changes the recommended sequence automatically)
+**Focus**: `62969c5` verified 2026-10-01; `frontend/` empty — UI is Phase 8
 
 ---
 

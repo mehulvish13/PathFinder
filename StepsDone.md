@@ -1,5 +1,17 @@
 # Steps Done - PathFinder Backend Foundation
 
+## 🟢 PHASE 5 — Assessment Engine — DONE (2026-10-01, `62969c5`)
+
+**Where we are:** Phase 4 frozen (`7d253d5`) → Phase 5 adds the first real learning feedback loop: `Learn → Assessment → Score → Mastery update (source=quiz) → Gap recalc`. Proven: 100% quiz → mastery 0→70 → gap 70→0 → `ready`.
+
+**Files (verified):** `backend/data/assessments.json` (20 Qs, 6 skills) · `backend/app/services/assessment/` (bank + engine) · `backend/app/models/assessment.py` (`AssessmentAttempt`) · `backend/app/schemas/assessment.py` · `backend/app/api/routes/assessment.py` (start/submit/get/result) · wiring in `main.py`, `models/__init__.py`, `schemas/__init__.py`.
+
+**Verified (not invented):** bank integrity PASS (0 problems); 12-check `TestClient` smoke PASS incl. no-answer-leak check, idempotent resubmit (1 history row), error codes (404/400); Phase 4 regression PASS (path/progress/dashboard 200).
+
+**Next:** Phase 6 Adaptive Roadmap — assessment result changes the recommended sequence automatically.
+
+---
+
 ## 🟢 PHASE 4A — Roadmap Generator — DONE (2026-09-13)
 
 **Where we are:**
@@ -23,6 +35,8 @@ PHASE 4D Dashboard ✅ ← COMPLETED
 PHASE 4E Notifications & Certificate ✅ ← COMPLETED
    ↓
 COMMIT 5 ✅ ← COMMITTED (`7d253d5`, 2026-10-01)
+    ↓
+PHASE 5 Assessment Engine ✅ ← COMMITTED (`62969c5`, 2026-10-01)
 ```
 
 **Complete Pipeline:**
@@ -34,6 +48,15 @@ COMMIT 5 ✅ ← COMMITTED (`7d253d5`, 2026-10-01)
 - Phase 4E: Notifications & Certificate (encouragement, completion verification)
 
 **All Phase 4 components committed 2026-10-01 (`7d253d5`). See COMMIT 5 + personalization fixes above.**
+
+**Phase 5 Assessment Engine committed 2026-10-01 (`62969c5`):**
+- `backend/data/assessments.json` — 20 questions across 6 skills (python, llm_fundamentals, prompt_engineering, embeddings, vector_databases, rag_fundamentals); all `skill_id ∈ catalog`, all `correct_index` valid, all with explanations.
+- `backend/app/services/assessment/` — bank loader (drops malformed/unknown-skill rows), deterministic ordered sampling, scoring, 30/70 mastery blend (`0.3 × previous + 0.7 × quiz`), idempotent submit via stored prev/new.
+- `backend/app/models/assessment.py` — `AssessmentAttempt` (question_ids JSON snapshot, survives bank edits).
+- `backend/app/api/routes/assessment.py` — `POST /start` (never leaks answers), `POST /submit`, `GET /{id}`, `GET /{id}/result` (replays stored aggregates; per-question feedback lives in submit response).
+- Proven loop: quiz 100% → mastery 0 → 70 → gap 70 → 0 → `ready`; existing `GET /progress/skills` reflects it with zero progress-code changes.
+- Verified: bank integrity PASS, 12-check smoke PASS (404 unknown skill/empty bank/missing attempt; 400 bad question/index/premature result), Phase 4 regression PASS.
+- Next: Phase 6 Adaptive Roadmap (assessment result must change the recommended sequence automatically).
 
 **Commit 5 personalization fixes (2026-10-01, verified):**
 - `POST /api/path/generate` accepts optional `target_career` (canonical id or name, e.g. `data_scientist` → `Data Scientist`) + `hours_per_week`; defaults preserve old clients (`GenAI Engineer`, `10.0`).

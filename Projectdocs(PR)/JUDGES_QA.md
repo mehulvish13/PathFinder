@@ -63,8 +63,8 @@ Anticipated questions from judges and how to answer them.
 
 ### Q9: "Is this a prototype or production-ready?"
 **A:** This is a **functional prototype** that demonstrates the core adaptive loop. We've prioritized:
-- ✅ Working: Skill Gap → Recommendation → Path → Resources → Roadmap → Progress → Dashboard → Certificate
-- 🔄 In Progress: Assessment Engine (real scoring) → Adaptive roadmap → AI explanations + Tutor
+- ✅ Working: Skill Gap → Recommendation → Path → Resources → Roadmap → Progress → Dashboard → Certificate → Assessment → Mastery update
+- 🔄 In Progress: Adaptive roadmap (result changes sequence) → AI explanations + Tutor
 - 📋 Planned: Dynamic resources, multi-user, advanced analytics
 
 The architecture is production-ready; the data and features need scaling.
@@ -140,12 +140,11 @@ This Learn → Assess → Adapt → Repeat cycle is the core innovation.
 ## 🚀 Future Questions
 
 ### Q17: "What comes next after this prototype?"
-**A:** Prioritized roadmap (updated Commit 5, 2026-10-01):
-1. **Done:** AI goal understanding (`POST /api/profile/extract` via Gemini), resource recommendations (Commit 4), progress tracking + dashboard + notifications + certificate (Commit 5)
-2. **Phase 5:** Assessment Engine — real quiz scoring replacing the V1 `+10 per completion` heuristic
-3. **Phase 6:** Real mastery updates → adaptive roadmap recalculation
-4. **Phase 7:** AI explanations + tutor
-5. **Phase 8:** React frontend + deployment
+**A:** Prioritized roadmap (updated Phase 5, 2026-10-01):
+1. **Done:** AI goal understanding (`POST /api/profile/extract` via Gemini), resource recommendations (Commit 4), progress tracking + dashboard + notifications + certificate (Commit 5), assessment engine with quiz mastery updates (`62969c5`)
+2. **Phase 6:** Adaptive roadmap — assessment result changes the recommended sequence automatically
+3. **Phase 7:** AI explanations + tutor
+4. **Phase 8:** React frontend + deployment
 
 ### Q18: "How would this scale to thousands of users?"
 **A:** Architecture supports scaling:
@@ -196,8 +195,8 @@ This Learn → Assess → Adapt → Repeat cycle is the core innovation.
 |----------|------------------|
 | What is it? | Adaptive learning system that recalculates paths based on mastery |
 | What's unique? | Personalized + Prerequisite-aware + Adaptive |
-| What's built? | Core engine: Skill Gap → Recommendation → Path → Assessment → Adaptation |
-| What's next? | AI goal understanding (natural language → profile) |
+| What's built? | Skill Gap → Recommendation → Path → Resources → Roadmap → Progress → Assessment → Mastery update |
+| What's next? | Adaptive roadmap (result changes sequence) → AI explanations → Frontend |
 | Main weakness? | Limited data (V1 uses curated knowledge base) |
 | How to address? | Architecture scales to dynamic discovery later |
 | What's the demo? | Full loop: Profile → Gap → Path → Learn → Test → Adapt → Explain |
