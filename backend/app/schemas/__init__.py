@@ -17,6 +17,16 @@ from app.schemas.progress import (
     NotificationResponse,
     CertificateResponse,
 )
+from app.schemas.assessment import (
+    AssessmentStartRequest,
+    AssessmentSubmitRequest,
+    AnswerItem,
+    QuestionPublic,
+    QuestionFeedback,
+    AssessmentStartResponse,
+    AssessmentResultResponse,
+    AssessmentDetailResponse,
+)
 
 __all__ = [
     "LearnerProfile",
@@ -34,4 +44,12 @@ __all__ = [
     "DashboardResponse",
     "NotificationResponse",
     "CertificateResponse",
+    "AssessmentStartRequest",
+    "AssessmentSubmitRequest",
+    "AnswerItem",
+    "QuestionPublic",
+    "QuestionFeedback",
+    "AssessmentStartResponse",
+    "AssessmentResultResponse",
+    "AssessmentDetailResponse",
 ]

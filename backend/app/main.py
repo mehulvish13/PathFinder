@@ -2,6 +2,7 @@ from fastapi import FastAPI
 from app.api.routes.profile import router as profile_router
 from app.api.routes.path import router as path_router
 from app.api.routes.progress import router as progress_router
+from app.api.routes.assessment import router as assessment_router
 
 from app.db.database import Base, engine
 from app.models import (
@@ -14,6 +15,7 @@ from app.models import (
     Activity,
     Progress,
     MasteryHistory,
+    AssessmentAttempt,
 )
 
 Base.metadata.create_all(bind=engine)
@@ -27,6 +29,7 @@ app = FastAPI(
 app.include_router(path_router)
 app.include_router(profile_router)
 app.include_router(progress_router)
+app.include_router(assessment_router)
 
 
 @app.get("/")

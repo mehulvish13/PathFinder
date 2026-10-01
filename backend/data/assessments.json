@@ -1,0 +1,257 @@
+[
+  {
+    "id": "q_python_01",
+    "skill_id": "python",
+    "question": "What is the output of len([1, 2, 3])?",
+    "options": ["2", "3", "[1, 2, 3]", "TypeError"],
+    "correct_index": 1,
+    "difficulty": "beginner",
+    "explanation": "len() returns the number of items in the list, which is 3."
+  },
+  {
+    "id": "q_python_02",
+    "skill_id": "python",
+    "question": "Which keyword defines a function in Python?",
+    "options": ["func", "def", "function", "lambda()"],
+    "correct_index": 1,
+    "difficulty": "beginner",
+    "explanation": "def starts a function definition; lambda creates only small anonymous functions."
+  },
+  {
+    "id": "q_python_03",
+    "skill_id": "python",
+    "question": "What does {'a': 1}['b'] do when key 'b' is missing?",
+    "options": ["Returns None", "Returns 0", "Raises KeyError", "Creates the key"],
+    "correct_index": 2,
+    "difficulty": "beginner",
+    "explanation": "Direct bracket access on a missing dict key raises KeyError; use .get() for a default."
+  },
+  {
+    "id": "q_python_04",
+    "skill_id": "python",
+    "question": "What does [x * 2 for x in range(3)] produce?",
+    "options": ["[0, 2, 4]", "[2, 4, 6]", "[0, 1, 2]", "[1, 2, 3]"],
+    "correct_index": 0,
+    "difficulty": "beginner",
+    "explanation": "range(3) is 0,1,2; doubling each gives [0, 2, 4]."
+  },
+  {
+    "id": "q_llm_fundamentals_01",
+    "skill_id": "llm_fundamentals",
+    "question": "What is a token in the context of LLMs?",
+    "options": [
+      "A user login credential",
+      "A chunk of text (characters/words/subwords) the model reads and generates",
+      "A GPU memory unit",
+      "An API rate-limit counter"
+    ],
+    "correct_index": 1,
+    "difficulty": "beginner",
+    "explanation": "Models split text into tokens; context limits and pricing are both counted in tokens."
+  },
+  {
+    "id": "q_llm_fundamentals_02",
+    "skill_id": "llm_fundamentals",
+    "question": "What does the context window limit?",
+    "options": [
+      "How many tokens the model can consider in one request",
+      "How fast the model trains",
+      "How many users can call the API",
+      "How large the model file is on disk"
+    ],
+    "correct_index": 0,
+    "difficulty": "beginner",
+    "explanation": "The context window is the maximum input+output tokens per request; longer histories must be truncated or summarized."
+  },
+  {
+    "id": "q_llm_fundamentals_03",
+    "skill_id": "llm_fundamentals",
+    "question": "What does a higher temperature setting do at generation time?",
+    "options": [
+      "Makes output more deterministic",
+      "Makes output more random and diverse",
+      "Increases the context window",
+      "Reduces inference cost"
+    ],
+    "correct_index": 1,
+    "difficulty": "intermediate",
+    "explanation": "Higher temperature flattens the sampling distribution, so rarer tokens get picked more often."
+  },
+  {
+    "id": "q_prompt_engineering_01",
+    "skill_id": "prompt_engineering",
+    "question": "What is few-shot prompting?",
+    "options": [
+      "Limiting the prompt to a few words",
+      "Including a few input-output examples in the prompt to steer behavior",
+      "Retraining the model on a few samples",
+      "Asking the model only yes/no questions"
+    ],
+    "correct_index": 1,
+    "difficulty": "beginner",
+    "explanation": "Examples demonstrate the desired pattern, which the model then continues for the new input."
+  },
+  {
+    "id": "q_prompt_engineering_02",
+    "skill_id": "prompt_engineering",
+    "question": "Why assign the model a role (e.g. 'You are a senior reviewer')?",
+    "options": [
+      "It changes the model weights permanently",
+      "It unlocks hidden API features",
+      "It biases tone, depth, and perspective of the response",
+      "It is required for billing"
+    ],
+    "correct_index": 2,
+    "difficulty": "beginner",
+    "explanation": "Role framing conditions the response style without changing the underlying model."
+  },
+  {
+    "id": "q_prompt_engineering_03",
+    "skill_id": "prompt_engineering",
+    "question": "Why request structured output (e.g. JSON with fixed keys)?",
+    "options": [
+      "It trains the model faster",
+      "It makes responses deterministic to parse and validate downstream",
+      "It reduces token usage to zero",
+      "It bypasses content filters"
+    ],
+    "correct_index": 1,
+    "difficulty": "intermediate",
+    "explanation": "Fixed schemas let code validate with Pydantic/JSON instead of fragile string parsing."
+  },
+  {
+    "id": "q_embeddings_01",
+    "skill_id": "embeddings",
+    "question": "What does an embedding capture?",
+    "options": [
+      "The file size of a document",
+      "The meaning of text as a dense numeric vector",
+      "The exact keyword counts of a document",
+      "The author and timestamp metadata"
+    ],
+    "correct_index": 1,
+    "difficulty": "beginner",
+    "explanation": "Similar meanings map to nearby vectors, enabling semantic (not keyword) comparison."
+  },
+  {
+    "id": "q_embeddings_02",
+    "skill_id": "embeddings",
+    "question": "Which metric is most commonly used to compare two embeddings?",
+    "options": ["Euclidean file size", "Cosine similarity", "Word count ratio", "Hash equality"],
+    "correct_index": 1,
+    "difficulty": "beginner",
+    "explanation": "Cosine similarity measures angle between vectors, ignoring magnitude differences."
+  },
+  {
+    "id": "q_embeddings_03",
+    "skill_id": "embeddings",
+    "question": "Why does embedding dimensionality matter?",
+    "options": [
+      "Higher dimensions always guarantee better results at zero cost",
+      "It trades representational capacity against storage and search cost",
+      "It sets the number of documents you may store",
+      "It controls the API request timeout"
+    ],
+    "correct_index": 1,
+    "difficulty": "intermediate",
+    "explanation": "Bigger vectors capture more nuance but cost more memory and slower nearest-neighbor search."
+  },
+  {
+    "id": "q_embeddings_04",
+    "skill_id": "embeddings",
+    "question": "In semantic search, what is compared against the query embedding?",
+    "options": [
+      "Raw keyword strings",
+      "Precomputed embeddings of the document chunks",
+      "The database password hashes",
+      "The model training logs"
+    ],
+    "correct_index": 1,
+    "difficulty": "beginner",
+    "explanation": "Chunks are embedded once at ingestion; at query time only the query is embedded and nearest chunks retrieved."
+  },
+  {
+    "id": "q_vector_databases_01",
+    "skill_id": "vector_databases",
+    "question": "What problem does a vector database solve over brute-force search?",
+    "options": [
+      "It stores passwords more securely",
+      "It uses approximate nearest-neighbor indexes for fast similarity search at scale",
+      "It compresses videos",
+      "It trains embedding models"
+    ],
+    "correct_index": 1,
+    "difficulty": "intermediate",
+    "explanation": "ANN indexes (e.g. HNSW) trade a little recall for orders-of-magnitude faster queries."
+  },
+  {
+    "id": "q_vector_databases_02",
+    "skill_id": "vector_databases",
+    "question": "What is metadata filtering used for in vector search?",
+    "options": [
+      "Encrypting the vectors",
+      "Restricting results by attributes (e.g. date, source) before or with similarity ranking",
+      "Choosing the embedding model",
+      "Deleting old indexes"
+    ],
+    "correct_index": 1,
+    "difficulty": "intermediate",
+    "explanation": "Filters combine exact attribute matches with vector ranking for precise retrieval."
+  },
+  {
+    "id": "q_vector_databases_03",
+    "skill_id": "vector_databases",
+    "question": "Why split documents into chunks before embedding?",
+    "options": [
+      "To increase the total file size",
+      "Because models have context limits and small focused chunks retrieve more precisely",
+      "To avoid needing a database",
+      "Because vectors require plain text without punctuation"
+    ],
+    "correct_index": 1,
+    "difficulty": "beginner",
+    "explanation": "Chunking keeps each vector focused; a whole-book vector would blur distinct topics together."
+  },
+  {
+    "id": "q_rag_fundamentals_01",
+    "skill_id": "rag_fundamentals",
+    "question": "What is the correct order of RAG stages?",
+    "options": [
+      "Generate → Retrieve → Ingest",
+      "Ingest → Retrieve → Generate",
+      "Retrieve → Ingest → Generate",
+      "Generate → Ingest → Retrieve"
+    ],
+    "correct_index": 1,
+    "difficulty": "beginner",
+    "explanation": "Documents are ingested (chunked+embedded), relevant chunks retrieved per query, then the LLM generates grounded in them."
+  },
+  {
+    "id": "q_rag_fundamentals_02",
+    "skill_id": "rag_fundamentals",
+    "question": "What is the main benefit of grounding generation in retrieved chunks?",
+    "options": [
+      "It makes responses longer",
+      "It reduces hallucinations by tying claims to source passages",
+      "It removes the need for prompts",
+      "It makes the model trainable"
+    ],
+    "correct_index": 1,
+    "difficulty": "beginner",
+    "explanation": "Cited context constrains the model to verifiable content instead of free invention."
+  },
+  {
+    "id": "q_rag_fundamentals_03",
+    "skill_id": "rag_fundamentals",
+    "question": "What does retrieval quality directly affect in RAG?",
+    "options": [
+      "Only the API billing tier",
+      "Whether the generator sees the right evidence, hence answer correctness",
+      "The programming language of the app",
+      "The color scheme of the UI"
+    ],
+    "correct_index": 1,
+    "difficulty": "intermediate",
+    "explanation": "Garbage in, garbage out: wrong chunks lead to wrong or evasive answers no matter how good the generator is."
+  }
+]

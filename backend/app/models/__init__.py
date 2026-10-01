@@ -7,3 +7,4 @@ from app.models.prerequisite import Prerequisite
 from app.models.activity import Activity
 from app.models.progress import Progress
 from app.models.mastery_history import MasteryHistory
+from app.models.assessment import AssessmentAttempt
