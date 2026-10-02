@@ -4,6 +4,7 @@ from app.api.routes.path import router as path_router
 from app.api.routes.progress import router as progress_router
 from app.api.routes.assessment import router as assessment_router
 from app.api.routes.adaptation import router as adaptation_router
+from app.api.routes.ai_tutor import router as ai_tutor_router
 
 from app.db.database import Base, engine
 from app.models import (
@@ -32,6 +33,7 @@ app.include_router(profile_router)
 app.include_router(progress_router)
 app.include_router(assessment_router)
 app.include_router(adaptation_router)
+app.include_router(ai_tutor_router)
 
 
 @app.get("/")
