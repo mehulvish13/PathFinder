@@ -19,6 +19,9 @@ class AnswerItem(BaseModel):
 class AssessmentSubmitRequest(BaseModel):
     assessment_id: int
     answers: List[AnswerItem] = Field(default_factory=list)  # INTERVIEW: missing answers count as incorrect — lenient for partial UI submits
+    # INTERVIEW: optional trigger — present → submit also returns the regenerated roadmap (no second call); absent → scoring only, old clients unchanged
+    target_career: Optional[str] = None
+    hours_per_week: float = Field(default=10.0, gt=0)
 
 
 class QuestionPublic(BaseModel):
@@ -65,6 +68,8 @@ class AssessmentResultResponse(BaseModel):
     gap_after: float
     status: str  # ready | needs_work
     feedback: List[QuestionFeedback] = Field(default_factory=list)
+    # INTERVIEW: None unless submit carried target_career — keeps scoring and adaptation independently testable
+    adaptation: Optional[dict] = None
 
     class Config:
         from_attributes = True

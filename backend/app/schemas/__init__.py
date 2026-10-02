@@ -27,6 +27,7 @@ from app.schemas.assessment import (
     AssessmentResultResponse,
     AssessmentDetailResponse,
 )
+from app.schemas.adaptation import RecalculateRequest, RecalculateResponse
 
 __all__ = [
     "LearnerProfile",
@@ -52,4 +53,6 @@ __all__ = [
     "AssessmentStartResponse",
     "AssessmentResultResponse",
     "AssessmentDetailResponse",
+    "RecalculateRequest",
+    "RecalculateResponse",
 ]

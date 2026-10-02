@@ -122,3 +122,51 @@ def load_resources() -> list[dict]:
 
 def load_all() -> dict:
     return {"skills": load_skills(), "careers": load_careers(), "resources": load_resources()}
+
+
+def load_career_requirements(career_id: str) -> list[dict]:
+    """Returns [{skill_id, required_mastery, importance}] for one career.
+    INTERVIEW: centralized with the other loaders — adaptation reuses the same
+    rows /api/path/generate takes as input, so recalc can never drift from path."""
+    raw = _load_json(DATA_DIR / "career_skills.json")
+    out = []
+    for row in raw:
+        if not isinstance(row, dict):
+            continue
+        if str(row.get("career_id", "")).strip().lower() != str(career_id).strip().lower():
+            continue
+        sid = row.get("skill_id")
+        try:
+            req = float(row.get("required_mastery", 60.0))
+        except (TypeError, ValueError):
+            continue
+        if not sid:
+            continue
+        out.append(
+            {
+                "skill_id": str(sid),
+                "required_mastery": req,
+                "importance": str(row.get("importance", "medium")),
+            }
+        )
+    return out
+
+
+def load_prerequisites() -> list[dict]:
+    """Returns [{skill_id, prerequisite_skill_id, type}] prerequisite edges."""
+    raw = _load_json(DATA_DIR / "prerequisites.json")
+    out = []
+    for row in raw:
+        if not isinstance(row, dict):
+            continue
+        sid, pre = row.get("skill_id"), row.get("prerequisite_skill_id")
+        if not sid or not pre:
+            continue
+        out.append(
+            {
+                "skill_id": str(sid),
+                "prerequisite_skill_id": str(pre),
+                "type": str(row.get("type", "hard")),
+            }
+        )
+    return out

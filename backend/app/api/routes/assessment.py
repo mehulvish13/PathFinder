@@ -67,7 +67,21 @@ def submit(request: AssessmentSubmitRequest, db: Session = Depends(get_db)):
         raise HTTPException(status_code=400, detail=str(e))
     except LookupError as e:
         raise HTTPException(status_code=404, detail=str(e))
-    return AssessmentResultResponse(**{k: v for k, v in result.items() if k != "note"})
+    payload = {k: v for k, v in result.items() if k != "note"}
+    # INTERVIEW: auto-trigger lives in the route (not the scoring service) — scoring stays pure/testable, orchestration stays here with adaptation
+    if request.target_career:
+        from app.services.adaptation.adaptation_service import recalculate
+
+        try:
+            payload["adaptation"] = recalculate(
+                db,
+                learner_id=attempt.learner_id,
+                target_career=request.target_career,
+                hours_per_week=request.hours_per_week,
+            )
+        except ValueError as e:
+            raise HTTPException(status_code=404, detail=str(e))
+    return AssessmentResultResponse(**payload)
 
 
 @router.get("/{assessment_id}", response_model=AssessmentDetailResponse)
