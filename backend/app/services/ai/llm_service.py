@@ -49,6 +49,17 @@ class LLMService:
         self.client = genai.Client(api_key=api_key)
         self.model = model
 
+    def generate_tutor_response(self, prompt: str) -> str:
+        """Generate a teaching response from deterministic PathFinder context."""
+        response = self.client.models.generate_content(
+            model=self.model,
+            contents=prompt,
+        )
+        text = (response.text or "").strip()
+        if not text:
+            raise ValueError("Gemini returned an empty response.")
+        return text
+
     def extract_learner_profile(
         self,
         user_message: str,
