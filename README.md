@@ -2,6 +2,44 @@
 
 AI-Powered Personalized Learning Path Recommender
 
+## 🟢 PHASE 8A — React Frontend Foundation
+
+**Status**: Frontend foundation complete ✅ — a React + Vite + TypeScript shell that consumes the existing FastAPI backend. Feature modules land in Phases 8B–8G.
+
+- **Stack**: React 18, Vite 5, TypeScript (strict), React Router 6, native `fetch` API client (no axios), plain CSS (no Tailwind/UI libraries).
+- **Routes** (root redirects to `/dashboard`): `/dashboard`, `/roadmap`, `/skills`, `/assessment`, `/tutor`.
+- **Shell**: persistent sidebar with active-route indication, top bar with learner/career controls and a live backend connection indicator.
+- **API client**: centralized in `frontend/src/services/api.ts`; base URL from `VITE_API_BASE_URL`. Errors are normalized to `ApiError` (network / HTTP / timeout / parse) so failures never crash the React tree.
+- **Types**: `frontend/src/types/api.ts` mirrors the actual FastAPI response schemas.
+- **Backend change**: added CORS middleware in `backend/app/main.py` (minimal, local dev origins only). No existing route/service logic changed.
+- **Architecture rule**: the frontend only displays backend-derived results — it does not compute gaps, priorities, prerequisites, mastery, or roadmaps.
+
+### Frontend setup
+
+```bash
+cd frontend
+npm install
+cp .env.example .env      # macOS/Linux — sets VITE_API_BASE_URL=http://127.0.0.1:8000
+# Windows PowerShell: Copy-Item .env.example .env
+npm run dev               # http://localhost:5173
+```
+
+> The frontend falls back to `http://127.0.0.1:8000` when `.env` is absent, so it still works with the default local backend without configuration.
+
+Scripts: `npm run dev`, `npm run build` (typechecks with `tsc -b` then builds), `npm run preview`, `npm run typecheck`.
+
+### Backend setup
+
+```bash
+cd backend
+venv\Scripts\activate
+uvicorn app.main:app --reload   # http://127.0.0.1:8000
+```
+
+**Ports**: backend `127.0.0.1:8000` (API docs at `/docs`), frontend dev server `localhost:5173` (preview `localhost:4173`). The backend CORS config allows these local origins.
+
+---
+
 ## 🟢 PHASE 6 — Adaptive Roadmap Recalculation (2026-10-01, `39d5875`)
 
 **Status**: The core intelligence loop is now closed ✅ — assessment → mastery → auto-recalculated roadmap.
