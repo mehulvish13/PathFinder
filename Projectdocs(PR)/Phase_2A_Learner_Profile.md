@@ -317,6 +317,27 @@ Bank integrity PASS; 12-check smoke PASS (leak check, resubmit idempotency, 404/
 
 `backend/docs/INTERVIEW_PREP_COMMIT6.md`.
 
+## 13. Phase 6 Addendum — Adaptive Roadmap (2026-10-01, `39d5875`)
+
+### What changed
+
+- **`services/adaptation/`** — orchestration only: latest `MasteryHistory` → existing gap/recommend/path/roadmap engines → `cleared_skills`; career resolution 404.
+- **`POST /api/adaptation/recalculate`** — full regenerated path + roadmap from current mastery.
+- **`POST /api/assessment/submit` with `target_career`** — result gains `adaptation`, so a quiz auto-regenerates the roadmap (no second call).
+- **`data_loader.load_career_requirements/load_prerequisites`** — single source for career rows + prereq edges.
+
+### Why it matters
+
+Assessment changes the plan, not just the profile: RAG 30→79 clears it from gaps; a failed quiz (→9) keeps it. Proved both directions plus career filtering, hours→weeks, unknown-career 404.
+
+### Tests (2026-10-01)
+
+`backend/tests/test_phase6_adaptation.py` — 10/10 PASS.
+
+### Interview prep
+
+`backend/docs/INTERVIEW_PREP_COMMIT7.md`.
+
 ## 9. Git
 
 After verification:

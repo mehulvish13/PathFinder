@@ -2,6 +2,18 @@
 
 AI-Powered Personalized Learning Path Recommender
 
+## 🟢 PHASE 6 — Adaptive Roadmap Recalculation (2026-10-01, `39d5875`)
+
+**Status**: The core intelligence loop is now closed ✅ — assessment → mastery → auto-recalculated roadmap.
+
+- `POST /api/adaptation/recalculate` — reads latest `MasteryHistory`, reruns gap → recommend → path → roadmap, returns `cleared_skills`
+- `POST /api/assessment/submit` — optional `target_career`/`hours_per_week` now also returns `adaptation`, so a quiz automatically regenerates the roadmap (no second call)
+- `cleared_skills` = required skills whose latest mastery now meets target and dropped out of active gaps
+
+**Verified 2026-10-01 (Phase 6)**: 10/10 regression checks PASS (`backend/tests/test_phase6_adaptation.py`), incl. both RAG directions — gap 45 → 0 + cleared after 100% quiz; gap 45 → 66 + still in path after failed quiz. Career filtering, hours→weeks, unknown-career 404 all PASS. Next: Phase 7 AI explanations/tutor.
+
+---
+
 ## 🟢 PHASE 5 — Assessment Engine Complete (2026-10-01, `62969c5`)
 
 **Status**: First real learning feedback loop ✅ — `Learn → Assessment → Score → Mastery update → Gap recalc`
@@ -32,8 +44,9 @@ AI-Powered Personalized Learning Path Recommender
 - `GET /api/progress/notifications/{learner_id}` — Personalized notifications (next action, milestones, streaks)
 - `GET /api/progress/certificate/{learner_id}` — Completion certificate (100% only, SHA-256 verified)
 - `POST /api/assessment/start` — Start skill quiz (answers never leaked)
-- `POST /api/assessment/submit` — Score → mastery blend → gap recalc (idempotent)
+- `POST /api/assessment/submit` — Score → mastery blend → gap recalc (idempotent); optional `target_career` also returns `adaptation` (Phase 6)
 - `GET /api/assessment/{id}` + `GET /api/assessment/{id}/result` — Attempt detail + stored result
+- `POST /api/adaptation/recalculate` — Regenerate gaps/path/roadmap from latest mastery (Phase 6)
 
 **Verified 2026-10-01 (Commit 5)**: KB integrity PASS (77 skills, 5 careers, 70 career-skills, 65 prerequisites, 8 resources — 0 missing refs). 8-endpoint smoke PASS via `TestClient`, including `data_scientist` → `Data Scientist` roadmap label check + old-client backward-compat check. Followed by Phase 5 Assessment Engine (`62969c5`).
 
@@ -286,7 +299,8 @@ This modular design ensures:
 - `POST /api/profile/extract` - Natural language → LearnerProfile via Gemini (Phase 2B, Commit 3)
 - `POST /api/path/generate` - Skill gaps → recommendations → learning path + `resources[]` + `roadmap` (optional `target_career`, `hours_per_week`, `learner_level`, `learning_preference`, `max_hours`, `resource_limit` — Commit 5)
 - `POST /api/assessment/start` - Start skill quiz, answers never leaked (Phase 5)
-- `POST /api/assessment/submit` - Score → mastery update → gap recalc (Phase 5)
+- `POST /api/assessment/submit` - Score → mastery update → gap recalc (Phase 5); optional auto-adaptation (Phase 6)
+- `POST /api/adaptation/recalculate` - Regenerate path/roadmap from latest mastery + cleared skills (Phase 6)
 - `POST /api/progress/activity` - Record learner activity (Commit 5)
 - `POST /api/progress/complete` - Mark resource completed, idempotent (Commit 5)
 - `GET /api/progress/{learner_id}` - Overall progress + next action (Commit 5)

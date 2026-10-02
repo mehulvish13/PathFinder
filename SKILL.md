@@ -141,6 +141,7 @@ git restore backend/app/api/routes/path.py backend/app/services/path/path_genera
 - Commit 4 (2026-09-12): Resource engine — `resources.json` (8), `resource_matcher.py` 50/20/20/10, `resources[]` per path skill, `INTERVIEW_PREP_COMMIT4.md`.
 - Commit 5 (2026-10-01, `7d253d5`): Phase 4 — `roadmap_generator.py` (3-skill phases, `estimated_weeks`), `Activity`/`Progress`/`MasteryHistory` models, 7 progress endpoints (activity/complete/progress/skills/dashboard/notifications/certificate), `target_career`+`hours_per_week` personalization, `INTERVIEW_PREP_COMMIT5.md`.
 - Phase 5 (2026-10-01, `62969c5`): Assessment engine — `assessments.json` (20 Qs, 6 skills), `services/assessment/` (bank + 30/70 blend, idempotent submit), `AssessmentAttempt` model, start/submit/get/result endpoints, `INTERVIEW_PREP_COMMIT6.md`.
+- Phase 6 (2026-10-01, `39d5875`): Adaptive roadmap — `services/adaptation/` orchestration (reusing gap/recommend/path/roadmap, `cleared_skills`), `POST /api/adaptation/recalculate`, auto-adaptation on submit when `target_career` present, 10-check `tests/test_phase6_adaptation.py`, `INTERVIEW_PREP_COMMIT7.md`.
 
 Next phases: Skill Gap wiring, Recommendation, Resource Engine — same checklist applies.
 

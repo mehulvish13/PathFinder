@@ -2,6 +2,18 @@
 
 AI-Powered Personalized Learning Path Recommender
 
+## 🟢 PHASE 6 — Adaptive Roadmap Recalculation (2026-10-01, `39d5875`)
+
+**Status**: The core intelligence loop is closed ✅ — assessment → mastery → auto-recalculated roadmap.
+
+- `POST /api/adaptation/recalculate` — latest `MasteryHistory` → gap/recommend/path/roadmap + `cleared_skills`
+- `POST /api/assessment/submit` with optional `target_career` — result includes `adaptation`, no second call
+- `cleared_skills` = required skills now meeting target and absent from active gaps
+
+**Verified 2026-10-01 (Phase 6)**: 10/10 regression checks PASS incl. both RAG directions; career filtering, hours→weeks, unknown-career 404 PASS. Next: Phase 7 AI explanations/tutor.
+
+---
+
 ## 🟢 PHASE 5 — Assessment Engine Complete (2026-10-01, `62969c5`)
 
 **Status**: First real learning feedback loop ✅ — `Learn → Assessment → Score → Mastery update → Gap recalc`
@@ -32,7 +44,7 @@ AI-Powered Personalized Learning Path Recommender
 - `GET /api/progress/notifications/{learner_id}` — Notifications (next action, milestones, streaks)
 - `GET /api/progress/certificate/{learner_id}` — Certificate (100% only, SHA-256 verified)
 
-**Verified 2026-10-01 (Commit 5)**: KB integrity PASS (77/5/70/65/8, 0 missing). 8-endpoint smoke PASS via `TestClient`. Followed by Phase 5 Assessment Engine (`62969c5`).
+**Verified 2026-10-01 (Commit 5)**: KB integrity PASS (77/5/70/65/8, 0 missing). 8-endpoint smoke PASS via `TestClient`. Followed by Phase 5 (`62969c5`) + Phase 6 (`39d5875`).
 
 ---
 

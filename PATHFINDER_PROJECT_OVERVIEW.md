@@ -1,6 +1,6 @@
 # 🧠 PathFinder Project Overview
 
-> **Status (2026-10-01): Phase 5 `62969c5` — assessment engine committed (20-Q bank, start/submit/result, quiz mastery updates). Next: Phase 6 Adaptive Roadmap.**
+> **Status (2026-10-01): Phase 6 `39d5875` — adaptive roadmap committed (assessment → auto-recalculated path/roadmap). Next: Phase 7 AI explanations/tutor.**
 
 ## 🔥 What Makes PathFinder Different
 

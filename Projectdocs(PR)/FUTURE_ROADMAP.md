@@ -1,6 +1,20 @@
 # 🚀 PathFinder — Future Roadmap
 
+## 📋 Current Status (Phase 6, 2026-10-01, `39d5875`)
+
+**Adaptive Roadmap committed — assessment now changes the sequence:**
+- ✅ `POST /api/adaptation/recalculate` (latest mastery → gap/recommend/path/roadmap + `cleared_skills`)
+- ✅ `POST /assessment/submit` auto-adaptation (optional `target_career`, no second call)
+- ✅ Both RAG directions proven: 45→0 cleared after 100% quiz; 45→66 remains after failed quiz
+- ✅ 10/10 regression checks PASS
+
+**Next:** Phase 7 — AI explanations/tutor
+
+---
+
 ## 📋 Current Status (Phase 5, 2026-10-01, `62969c5`)
+
+> Previous block retained as history.
 
 **Assessment Engine committed — first real feedback loop:**
 - ✅ 20-question bank (6 skills, all canonical)
@@ -8,7 +22,7 @@
 - ✅ 30/70 mastery blend → `MasteryHistory(source=quiz)`
 - ✅ `gap_before/gap_after` in every result (proven: 100% → 0→70 → gap 70→0 → `ready`)
 
-**Next:** Phase 6 — Adaptive Roadmap (assessment result changes the recommended sequence automatically)
+**History:** Phase 6 built on Phase 5 (`62969c5`), which built on Phase 4 (`7d253d5`). Next: **Phase 7 — AI explanations/tutor**.
 
 **Phase 4 Complete — roadmap + progress platform committed (`7d253d5`):**
 - ✅ Skill Gap Engine
@@ -214,11 +228,11 @@ Dashboard + Notifications
 - `POST /assessment/start` (no answer leak) → `POST /submit` (30/70 blend, idempotent) → `GET /{id}` + `/{id}/result`
 - Every result carries `gap_before/gap_after` — the input Phase 6 recalculates from
 
-### Phase 6: Adaptive Roadmap 🔜 NEXT
-**Timeline:** Next
+### Phase 6: Adaptive Roadmap ✅ DONE (2026-10-01, `39d5875`)
+**Timeline:** Complete
 **Goal:** An assessment result changes the recommended learning sequence automatically
 
-**Objective:** RAG 30% BLOCKED → quiz 85% → RAG READY → prerequisite cleared → next eligible skill moves forward → roadmap recalculates.
+**Delivered:** `POST /api/adaptation/recalculate` + submit-time auto-adaptation; `cleared_skills`; RAG scenario proven both directions; 10-check regression file.
 
 ### Phase 7: Advanced Adaptation (later)
 **Timeline:** After Phase 6
@@ -243,10 +257,10 @@ Predictive Recommendations
 
 ## 🛠️ Technical Roadmap
 
-### Immediate (Phase 6)
+### Immediate (Phase 7)
 - [x] Assessment system with skill mapping (done — Phase 5)
 - [x] Mastery calculation service (done — 30/70 blend, Phase 5)
-- [ ] Path adaptation logic (mastery → gaps → roadmap change) ← NEXT
+- [x] Path adaptation logic (done — Phase 6 orchestration + `cleared_skills`)
 - [ ] AI explanation endpoints
 - [ ] Demo UI polish
 

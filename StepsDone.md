@@ -1,5 +1,24 @@
 # Steps Done - PathFinder Backend Foundation
 
+## 🟢 PHASE 6 — Adaptive Roadmap Recalculation — DONE (2026-10-01, `39d5875`)
+
+**Where we are:** Phase 5 frozen (`62969c5`) → Phase 6 closes the loop: an assessment result now automatically regenerates the recommended sequence.
+
+**Files added/changed (verified):**
+- `backend/app/services/adaptation/adaptation_service.py` — orchestration only: `resolve_career` (id or name, 404), `latest_mastery_map` (latest per skill_id), `recalculate` (reuses gap → recommend → path → roadmap + derives `cleared_skills`; no reimplemented scoring).
+- `backend/app/api/routes/adaptation.py` — `POST /api/adaptation/recalculate` (request → full path + roadmap + cleared skills; unknown career → 404).
+- `backend/app/schemas/adaptation.py` — `RecalculateRequest/Response`.
+- `backend/app/api/routes/assessment.py` — submit now accepts optional `target_career`/`hours_per_week`; when present, result includes `adaptation` (single round-trip).
+- `backend/app/data_loader.py` — `load_career_requirements()` + `load_prerequisites()` (same canonical JSON the path endpoint takes).
+- `backend/app/main.py` + `schemas/__init__.py` — wiring.
+- `backend/tests/test_phase6_adaptation.py` — 10 regression checks runnable via `python tests/test_phase6_adaptation.py`.
+
+**Proven (not invented):** `rag_fundamentals` 30% → 100% quiz → mastery 79 → gap 75→0 → `cleared_skills` contains `rag_fundamentals` → removed from active gaps; failed quiz → mastery 9 → gap 45→66 → still in gaps. Career filtering, hours→weeks (8.0 vs 2.0), unknown career 404 — all PASS. `POST /api/path/generate` + progress/dashboard smoke PASS.
+
+**Next:** Phase 7 AI explanations/tutor.
+
+---
+
 ## 🟢 PHASE 5 — Assessment Engine — DONE (2026-10-01, `62969c5`)
 
 **Where we are:** Phase 4 frozen (`7d253d5`) → Phase 5 adds the first real learning feedback loop: `Learn → Assessment → Score → Mastery update (source=quiz) → Gap recalc`. Proven: 100% quiz → mastery 0→70 → gap 70→0 → `ready`.
