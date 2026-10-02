@@ -7,7 +7,7 @@ from __future__ import annotations
 
 from app.data_loader import load_career_requirements, load_careers, load_prerequisites, load_skills
 from app.models.mastery_history import MasteryHistory
-from app.services.adaptation.adaptation_service import resolve_career
+from app.services.adaptation.adaptation_service import recalculate, resolve_career
 from app.services.skills.skill_gap_service import calculate_skill_gaps
 from app.services.recommendation.recommendation_service import recommend_skills
 
@@ -36,6 +36,7 @@ def build_context(db, learner_id: int, target_career: str, skill_id: str | None 
     prerequisites = load_prerequisites()
     gaps = calculate_skill_gaps(mastery, requirements)
     recommendations = recommend_skills(gaps, prerequisites, mastery)
+    adaptive = recalculate(db, learner_id, career["id"])
     gap_by_id = {g["skill_id"]: g for g in gaps}
     req_by_id = {r["skill_id"]: r for r in requirements}
     names = {s["id"]: s["name"] for s in load_skills()}
@@ -59,6 +60,8 @@ def build_context(db, learner_id: int, target_career: str, skill_id: str | None 
         "selected_skill": selected,
         "active_skill_gaps": gaps[:12],
         "top_recommendations": recommendations[:8],
+        "current_roadmap": adaptive["roadmap"],
+        "current_learning_path": adaptive["learning_path"],
         "mastery_snapshot": {k: round(v, 2) for k, v in sorted(mastery.items())},
         "prerequisites": [p for p in prerequisites if not skill_id or p["skill_id"] == skill_id or p["prerequisite_skill_id"] == skill_id],
         "rules": [
