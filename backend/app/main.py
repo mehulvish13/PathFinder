@@ -1,4 +1,5 @@
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from app.api.routes.profile import router as profile_router
 from app.api.routes.path import router as path_router
 from app.api.routes.progress import router as progress_router
@@ -26,6 +27,21 @@ app = FastAPI(
     title="PathFinder API",
     description="AI-Powered Personalized Learning Path Recommender",
     version="0.1.0"
+)
+
+# Allow the local React dev server (Vite) to call the API from the browser.
+# Origins are limited to local development hosts.
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[
+        "http://localhost:5173",
+        "http://127.0.0.1:5173",
+        "http://localhost:4173",
+        "http://127.0.0.1:4173",
+    ],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 app.include_router(path_router)
