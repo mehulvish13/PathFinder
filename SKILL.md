@@ -142,6 +142,11 @@ git restore backend/app/api/routes/path.py backend/app/services/path/path_genera
 - Commit 5 (2026-10-01, `7d253d5`): Phase 4 — `roadmap_generator.py` (3-skill phases, `estimated_weeks`), `Activity`/`Progress`/`MasteryHistory` models, 7 progress endpoints (activity/complete/progress/skills/dashboard/notifications/certificate), `target_career`+`hours_per_week` personalization, `INTERVIEW_PREP_COMMIT5.md`.
 - Phase 5 (2026-10-01, `62969c5`): Assessment engine — `assessments.json` (20 Qs, 6 skills), `services/assessment/` (bank + 30/70 blend, idempotent submit), `AssessmentAttempt` model, start/submit/get/result endpoints, `INTERVIEW_PREP_COMMIT6.md`.
 - Phase 6 (2026-10-01, `39d5875`): Adaptive roadmap — `services/adaptation/` orchestration (reusing gap/recommend/path/roadmap, `cleared_skills`), `POST /api/adaptation/recalculate`, auto-adaptation on submit when `target_career` present, 10-check `tests/test_phase6_adaptation.py`, `INTERVIEW_PREP_COMMIT7.md`.
+- Phase 7 (2026-10-01): AI tutor — `routes/ai_tutor.py`, `services/ai/` context + LLM service, `tests/test_phase7_ai_tutor.py` (4/4).
+- Phase 8A (2026-10-03, `c84d2db`): React foundation — Vite + TS + Router + AppShell + centralized `api.ts` + mirrored types + CORS; no backend logic changes.
+- Phase 8B (2026-10-03, `cd98c87`): Dashboard — 9 components in `components/dashboard/`, real data from dashboard + recalculate endpoints, no hardcoded stats or frontend gap math.
+- Phase 8C (2026-10-03, `2d71160`, PR #3): Roadmap page — 7 components in `components/roadmap/`, Mark Complete via `POST /api/progress/complete` with refresh; live completion→recalc proof (gap 75→65).
+- Phase 8D (2026-10-03, `d45db02`, PR #4): Skills workspace — `components/skills/` + `skillRows.ts` join (no second gap engine), recorded mastery + `mastery_history` incl. quiz sources; live quiz proof (mastery 0→70, gap 75→5).
 
-Next phases: Skill Gap wiring, Recommendation, Resource Engine — same checklist applies.
+Next phases: 8E Assessment UI, 8F Tutor UI, 8G adaptive experience — same checklist applies. Known backend ticket (8G): `generate_learning_path` expects `target_skill`/`source_skill` keys while `load_prerequisites()` returns `skill_id`/`prerequisite_skill_id`, so `blocked` steps don't emerge; frontend renders them defensively.
 

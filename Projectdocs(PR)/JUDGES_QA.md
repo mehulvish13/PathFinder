@@ -63,8 +63,8 @@ Anticipated questions from judges and how to answer them.
 
 ### Q9: "Is this a prototype or production-ready?"
 **A:** This is a **functional prototype** that demonstrates the core adaptive loop. We've prioritized:
-- ✅ Working: Skill Gap → Recommendation → Path → Resources → Roadmap → Progress → Dashboard → Certificate → Assessment → Mastery update → Adaptive recalc
-- 🔄 In Progress: AI explanations + Tutor → React frontend
+- ✅ Working: Skill Gap → Recommendation → Path → Resources → Roadmap → Progress → Dashboard → Certificate → Assessment → Mastery update → Adaptive recalc → React UI (dashboard, roadmap, skills on `main`)
+- 🔄 In Progress: Assessment UI (8E) → AI Tutor UI (8F) → adaptive experience (8G)
 - 📋 Planned: Dynamic resources, multi-user, advanced analytics
 
 The architecture is production-ready; the data and features need scaling.
@@ -141,9 +141,9 @@ This Learn → Assess → Adapt → Repeat cycle is the core innovation.
 
 ### Q17: "What comes next after this prototype?"
 **A:** Prioritized roadmap (updated Phase 6, 2026-10-01):
-1. **Done:** AI goal understanding (`POST /api/profile/extract` via Gemini), resource recommendations (Commit 4), progress tracking + dashboard + notifications + certificate (Commit 5), assessment engine with quiz mastery updates (`62969c5`), adaptive roadmap recalculation (`39d5875`)
-2. **Phase 7:** AI explanations + tutor
-3. **Phase 8:** React frontend + deployment
+1. **Done:** AI goal understanding (`POST /api/profile/extract` via Gemini), resource recommendations (Commit 4), progress tracking + dashboard + notifications + certificate (Commit 5), assessment engine with quiz mastery updates (`62969c5`), adaptive roadmap recalculation (`39d5875`), AI tutor routes (Phase 7), React frontend 8A foundation + 8B dashboard + 8C roadmap + 8D skills (on `main`)
+2. **Phase 8E:** Assessment UI
+3. **Phase 8F–8G + deployment:** AI Tutor UI, adaptive experience, cloud deploy
 
 ### Q18: "How would this scale to thousands of users?"
 **A:** Architecture supports scaling:
@@ -195,7 +195,7 @@ This Learn → Assess → Adapt → Repeat cycle is the core innovation.
 | What is it? | Adaptive learning system that recalculates paths based on mastery |
 | What's unique? | Personalized + Prerequisite-aware + Adaptive |
 | What's built? | Skill Gap → Recommendation → Path → Resources → Roadmap → Progress → Assessment → Mastery update → Adaptive recalc |
-| What's next? | AI explanations + Tutor → React frontend |
+| What's next? | Assessment UI (8E) → Tutor UI (8F) → adaptive experience (8G) |
 | Main weakness? | Limited data (V1 uses curated knowledge base) |
 | How to address? | Architecture scales to dynamic discovery later |
 | What's the demo? | Full loop: Profile → Gap → Path → Learn → Test → Adapt → Explain |

@@ -257,12 +257,12 @@ Predictive Recommendations
 
 ## 🛠️ Technical Roadmap
 
-### Immediate (Phase 7)
+### Immediate (Phase 7 → 8)
 - [x] Assessment system with skill mapping (done — Phase 5)
 - [x] Mastery calculation service (done — 30/70 blend, Phase 5)
 - [x] Path adaptation logic (done — Phase 6 orchestration + `cleared_skills`)
-- [ ] AI explanation endpoints
-- [ ] Demo UI polish
+- [x] AI explanation endpoints (done — Phase 7 tutor routes + regression)
+- [x] Demo UI foundation (done — React 8A shell, 8B dashboard, 8C roadmap, 8D skills)
 
 ### Done since this list was written (Commit 5)
 - [x] Gemini profile extraction (`POST /api/profile/extract`)
@@ -276,7 +276,8 @@ Predictive Recommendations
 - [x] Basic progress tracking (done — Commit 5)
 
 ### Medium-term (V3)
-- [ ] React frontend
+- [x] React frontend foundation + dashboard + roadmap + skills (done — Phases 8A–8D on `main`)
+- [ ] Assessment UI (Phase 8E) + AI Tutor UI (8F) + adaptive experience (8G)
 - [ ] Multi-user authentication
 - [ ] Dynamic resource discovery
 - [ ] Assessment question banks

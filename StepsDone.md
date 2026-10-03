@@ -1656,3 +1656,15 @@ The engine will:
 - API endpoints for learner registration
 - Career selection endpoint
 - Gap analysis endpoint
+
+---
+
+## Phase 8 Frontend (2026-10-03, on main via PRs 3-4)
+
+React + Vite + TS shell (8A c84d2db) consuming the FastAPI backend via centralized api.ts; frontend displays backend results only, never computes gaps/mastery/priority/roadmaps.
+
+- 8B dashboard (cd98c87): header, summary cards, current focus, skill gaps, roadmap preview, milestones, next action, quick actions. Sources: dashboard + recalculate endpoints.
+- 8C roadmap (2d71160, PR #3): full phased roadmap, milestones, step cards with prerequisites/resources, Mark Complete via progress/complete. Live proof: completion drove mastery 0->10 and recalculated gap 75->65.
+- 8D skills (d45db02, PR #4): skill list/detail joined from recalculate + recorded mastery + mastery_history (no second gap engine); quiz-sourced events labeled Assessment. Live proof: 100% RAG quiz drove mastery 0->70, gap 75->5.
+- Verified each phase: typecheck + build green; Phase 6 10/10, Phase 7 4/4; routes serve 200 with live data. Backend production logic untouched.
+- Known backend ticket (8G): generate_learning_path expects target_skill/source_skill keys while load_prerequisites() returns skill_id/prerequisite_skill_id, so blocked steps do not emerge; UIs render them defensively.

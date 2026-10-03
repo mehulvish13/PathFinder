@@ -4,7 +4,7 @@ AI-Powered Personalized Learning Path Recommender
 
 ## 🟢 PHASE 8A — React Frontend Foundation
 
-**Status**: Frontend foundation complete ✅ — a React + Vite + TypeScript shell that consumes the existing FastAPI backend. Dashboard landed in Phase 8B (`756f536`); remaining modules land in Phases 8C–8G.
+**Status**: Frontend foundation complete ✅ — a React + Vite + TypeScript shell that consumes the existing FastAPI backend. Dashboard landed in Phase 8B (`756f536`; on `main` as `cd98c87`); roadmap landed in 8C, skills in 8D; remaining modules land in Phases 8E–8G.
 
 - **Stack**: React 18, Vite 5, TypeScript (strict), React Router 6, native `fetch` API client (no axios), plain CSS (no Tailwind/UI libraries).
 - **Routes** (root redirects to `/dashboard`): `/dashboard`, `/roadmap`, `/skills`, `/assessment`, `/tutor`.
@@ -42,6 +42,32 @@ Scripts: `npm run dev`, `npm run build` (typechecks with `tsc -b` then builds), 
 - **Backend change**: none.
 
 **Verified 2026-10-03 (Phase 8B)**: `npm run typecheck` ✅, `npm run build` ✅ (63 modules), `/dashboard` serves HTTP 200 with live data (26 gaps, 9-phase roadmap for learner 1); Phase 6 regression 10/10, Phase 7 regression 4/4.
+
+---
+
+## 🟢 PHASE 8C — Personalized Learning Roadmap (`2d71160`)
+
+**Status**: The complete `/roadmap` page ✅ — phased journey with milestones, per-skill learning steps, prerequisites, curated resources and working progress completion, all from backend data.
+
+- **Data sources (3 real endpoints)**: `POST /api/adaptation/recalculate` (gaps, recommendations, learning-path steps with ready/blocked status + prerequisites, phased roadmap + next action) + `GET /api/progress/dashboard/{learner_id}` (overall progress, optional) + `POST /api/progress/complete` (Mark Complete per resource).
+- **Sections**: career header → overview stats (phases, ready/blocked skill counts, duration, progress) → Already-mastered strip → phase timeline (Current vs Upcoming — the backend exposes no per-phase completion, so none is invented) → phase sections with milestone banners + step cards (mastery bars, importance/readiness badges, prerequisite chains, resources) → Next Action → links to `/skills` + `/assessment`.
+- **Adaptive proof (live)**: completed a resource → mastery 0→10 → recalculated gap 75→65 on refresh. Backend remains authoritative; no optimistic mastery.
+- **Backend change**: none. Known backend ticket (kept for 8G): `generate_learning_path` reads `target_skill`/`source_skill` keys while `load_prerequisites()` returns `skill_id`/`prerequisite_skill_id`, so `blocked` steps don't currently emerge; the UI renders them defensively.
+
+**Verified 2026-10-03 (Phase 8C)**: `npm run typecheck` ✅, `npm run build` ✅ (70 modules), `/roadmap` serves HTTP 200; Phase 6 regression 10/10, Phase 7 regression 4/4. Merged via PR #3.
+
+---
+
+## 🟢 PHASE 8D — Skills & Progress Workspace (`d45db02`)
+
+**Status**: The `/skills` workspace ✅ — answers "What skills do I have, what am I missing, and how is my mastery changing?" No second skill-gap engine in React; gaps are joined, never computed.
+
+- **Data sources (3 real endpoints)**: `POST /api/adaptation/recalculate` (career-specific gaps, importance, cleared skills, resources) + `GET /api/progress/{learner_id}/skills` (recorded mastery + status) + `GET /api/progress/{learner_id}` (overall progress + `mastery_history` incl. quiz-sourced events).
+- **Sections**: header + Refresh → overview (tracked / mastered / open gaps / overall progress) → filterable skill list (All / Open gaps / Mastered, backend priority order preserved) → detail panel (mastery bars, badges, prerequisites, resources, per-skill history) → global mastery-history timeline → Take Assessment (`/assessment`) + View Roadmap links.
+- **Assessment reflection (live)**: 100% RAG quiz → mastery 0→70, quiz-sourced milestone recorded, gap 75→5 — all visible on refresh.
+- **Backend change**: none.
+
+**Verified 2026-10-03 (Phase 8D)**: `npm run typecheck` ✅, `npm run build` ✅ (77 modules), `/skills` serves HTTP 200 (26 tracked skills joined live); Phase 6 regression 10/10, Phase 7 regression 4/4. Merged via PR #4.
 
 ### Backend setup
 

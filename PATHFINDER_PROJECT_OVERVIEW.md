@@ -1,6 +1,6 @@
 # 🧠 PathFinder Project Overview
 
-> **Status (2026-10-01): Phase 6 `39d5875` — adaptive roadmap committed (assessment → auto-recalculated path/roadmap). Next: Phase 7 AI explanations/tutor.**
+> **Status (2026-10-03): Phases 8A-8D on `main` -- React foundation + dashboard + roadmap + skills workspace, all on real backend data. Next: Phase 8E Assessment UI.**
 
 ## 🔥 What Makes PathFinder Different
 

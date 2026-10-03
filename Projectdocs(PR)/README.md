@@ -1,5 +1,5 @@
 # PathFinder
-
+ongoing 8th
 AI-Powered Personalized Learning Path Recommender
 
 ## 🟢 PHASE 6 — Adaptive Roadmap Recalculation (2026-10-01, `39d5875`)
@@ -421,7 +421,7 @@ Recommendation Engine ✅ (Commit 2)
 
 **Current State**: Layers 1-10 are complete (… → Roadmap → Progress → Dashboard/Certificate → Assessment → quiz mastery updates)
 **Next Step**: Phase 6 — Adaptive Roadmap (assessment result changes the recommended sequence automatically)
-**Focus**: `62969c5` verified 2026-10-01; `frontend/` empty — UI is Phase 8
+**Focus**: `62969c5` verified 2026-10-01; React frontend Phases 8A–8D complete on `main` (foundation → dashboard → roadmap → skills workspace); UI continues in Phase 8E (assessment)
 
 ---
 
