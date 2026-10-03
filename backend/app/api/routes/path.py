@@ -62,6 +62,10 @@ def generate_path(request: PathRequest):
         learning_preference=request.learning_preference,
         max_hours=request.max_hours,
         resource_limit=request.resource_limit or 3,
+        # INTERVIEW: mastery context lets the generator judge prerequisites
+        # that are not recommended steps (mastered/out-of-career skills).
+        current_skills=request.current_skills,
+        career_requirements=request.career_requirements,
     )
     
     # Generate roadmap from learning path

@@ -1670,7 +1670,7 @@ React + Vite + TS shell (8A c84d2db) consuming the FastAPI backend via centraliz
 - 8F tutor UI (47a5d21, PR #6): ChatThread + Composer + Tutor page on Phase 7 chat/explain endpoints; roadmap LearningStepCard + skills SkillDetail deep-link into /tutor?skill=<id>; LLM explains only, engines stay authoritative.
 - 8G adaptive links (c7a1551, PR #7): skill-context params across /skills ↔ /assessment ↔ /roadmap ↔ /tutor; post-quiz refresh surfaces cleared_skills + next action.
 - Verified each phase: typecheck + build green; Phase 6 10/10, Phase 7 4/4; routes serve 200 with live data. Backend production logic untouched.
-- Known backend ticket (8G): generate_learning_path expects target_skill/source_skill keys while load_prerequisites() returns skill_id/prerequisite_skill_id, so blocked steps do not emerge; UIs render them defensively.
+- Known backend ticket (8G): generate_learning_path expects target_skill/source_skill keys while load_prerequisites() returns skill_id/prerequisite_skill_id, so blocked steps do not emerge; UIs render them defensively. (Resolved in Phase 10R.1 — see entry at end.)
 
 ## Phase 10A Deployment Platform Research — LOCKED (2026-10-03)
 
@@ -1705,4 +1705,17 @@ Execution order: 10A freeze+research (DONE) → 10B inspect DB layer → 10C arc
 - Removed tracked empty junk backend/requirements.txt.txt.
 - Verified: Phase 7 4/4 PASS; Phase 6 13 pass + 1 known documented contamination failure (n==9 row count on shared DB); frontend typecheck PASS; build PASS; uvicorn boots, /health healthy; postgres:// import normalizes; git grep: no secrets in tracked files.
 - Gemini-only in code (no Groq wired). Frontend VITE_API_BASE_URL + vercel.json SPA rewrite already in place. Manual steps pending: Neon DB, Render blueprint apply, Vercel deploy, deployed smoke test, screenshots, demo video, submission package.
+
+## Phase 10R.1 Prerequisite Engine Repair (2026-10-04)
+
+- Root cause: `generate_learning_path` read `target_skill`/`source_skill` keys while `load_prerequisites()` emits `skill_id`/`prerequisite_skill_id`, so the map collapsed to `{"": [""]}` and every skill looked unblocked; `recommend_skills` hardcoded `prerequisites=[]`/`blocked_by=[]`/`readiness="ready"`; roadmap chunked fixed groups of 3.
+- Fix (canonical contract `{skill_id, prerequisite_skill_id, type}` = target + must-know-first):
+  - `backend/app/data_loader.py` — `load_prerequisites()` documents + enforces the canonical shape (strip, drop blank ids, never `""` edges). Finding only: `data/skills.json` (52 edges) is a stale subset of `data/prerequisites.json` (65 edges); both edge-only files, loader reads `prerequisites.json`. Not touched.
+  - `backend/app/services/prerequisites.py` (new) — single home for graph semantics: `build_prerequisite_map`, `unresolved_prerequisites` (mastery vs required bar), `order_by_dependencies` (Kahn, stable), `prerequisite_depths`, `find_prerequisite_cycle` + `PrerequisiteCycleError`. LLM decides none of this.
+  - `recommendation_service.py` — truthful `prerequisites`/`blocked_by`/`readiness` per skill; ranking untouched.
+  - `path_generator.py` — canonical map (legacy key fallbacks removed), mastery-aware `_get_unresolved_prerequisites`, topological step order, depth-layered `phases`, cycle raises instead of fake path. Mastered (gap-0) skills stay out via the gap engine. New optional `current_skills`/`career_requirements` kwargs.
+  - `roadmap_generator.py` — phases are dependency layers (from step `prerequisite_depth`, else derived, else one honest phase); response fields (`id/title/description/skills/milestone/estimated_hours`, `next_action`, `estimated_weeks`) unchanged.
+  - Callers: `routes/path.py` + `adaptation_service.recalculate` pass mastery + requirements through.
+- Proof (real GenAI data, fresh learner): 65 edges, 26 skills, 1 ready / 25 blocked, 8 phases; mid-level learner: 24 gaps, 2 ready / 22 blocked, `rag_fundamentals` blocked by `['llm_fundamentals', 'retrieval']`, capstone last.
+- Verified: new `tests/test_phase10r1_prerequisites.py` 10/10 PASS (pure unit, no DB); pytest 23 pass + 1 known pre-existing contamination failure (phase6 test_2 row count on shared dev DB, fails on main too); Phase 7 4/4; frontend typecheck + build PASS, no frontend changes needed.
 

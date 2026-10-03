@@ -148,5 +148,5 @@ git restore backend/app/api/routes/path.py backend/app/services/path/path_genera
 - Phase 8C (2026-10-03, `2d71160`, PR #3): Roadmap page — 7 components in `components/roadmap/`, Mark Complete via `POST /api/progress/complete` with refresh; live completion→recalc proof (gap 75→65).
 - Phase 8D (2026-10-03, `d45db02`, PR #4): Skills workspace — `components/skills/` + `skillRows.ts` join (no second gap engine), recorded mastery + `mastery_history` incl. quiz sources; live quiz proof (mastery 0→70, gap 75→5).
 
-Next phases: 8E Assessment UI, 8F Tutor UI, 8G adaptive experience — same checklist applies. Known backend ticket (8G): `generate_learning_path` expects `target_skill`/`source_skill` keys while `load_prerequisites()` returns `skill_id`/`prerequisite_skill_id`, so `blocked` steps don't emerge; frontend renders them defensively.
+Next phases: 8E Assessment UI, 8F Tutor UI, 8G adaptive experience — same checklist applies. Known backend ticket (8G): `generate_learning_path` expects `target_skill`/`source_skill` keys while `load_prerequisites()` returns `skill_id`/`prerequisite_skill_id`, so `blocked` steps don't emerge; frontend renders them defensively. (Resolved in Phase 10R.1 — canonical `skill_id`/`prerequisite_skill_id` contract, mastery-aware readiness, topological ordering, dependency-layered roadmap; see StepsDone.md.)
 

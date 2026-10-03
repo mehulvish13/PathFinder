@@ -6,6 +6,13 @@ try:
 except ImportError:
     recommend_resources = None  # type: ignore
 
+from app.services.prerequisites import (
+    build_prerequisite_map,
+    order_by_dependencies,
+    prerequisite_depths,
+    unresolved_prerequisites,
+)
+
 IMPORTANCE_WEIGHT = {
     "critical": 1.0,
     "high": 0.85,
@@ -62,7 +69,9 @@ def generate_learning_path(
     learning_preference: Optional[str] = None,
     max_hours: Optional[float] = None,
     resource_limit: int = 3,
-) -> Dict[str, List[str]]:
+    current_skills: Optional[Dict[str, float]] = None,
+    career_requirements: Optional[List[dict]] = None,
+) -> dict:
     """
     Generate a personalized learning path from skill recommendations.
 
@@ -70,39 +79,82 @@ def generate_learning_path(
     and creates a sequential learning path that respects prerequisite
     dependencies, ensuring learners build knowledge in the correct order.
 
+    Readiness is mastery-aware: a skill is "blocked" when any prerequisite
+    is below its required mastery, even if the skill itself has no gap left.
+    Steps are emitted in deterministic topological order (prerequisites
+    first, priority order preserved inside each dependency layer), and
+    already-mastered prerequisites never appear as learning steps — the gap
+    engine already drops gap-0 skills from the recommendations.
+
     Args:
         recommendations: List of skill recommendations from recommend_skills
-        prerequisites: List of prerequisite relationships between skills
+        prerequisites: Canonical prerequisite edges
+            ({skill_id, prerequisite_skill_id, type}); normalized by the
+            data loader, consumed here with no key fallbacks
         resources: Curated resources list (from load_resources) — matched per skill
         learner_level: beginner|intermediate|advanced for difficulty fit
         learning_preference: project|theory|mixed for type fit
         max_hours: time fit filter for resources
         resource_limit: top-N resources per skill
+        current_skills: Optional mastery map, used to judge prerequisites
+            that are not themselves recommended steps (e.g. mastered or
+            out-of-career foundations)
+        career_requirements: Optional [{skill_id, required_mastery, ...}],
+            used as the mastery bar for prerequisites outside the
+            recommendations
 
     Returns:
         Dictionary containing the personalized learning path with stages/phases
+
+    Raises:
+        PrerequisiteCycleError: when the recommended skills contain a
+            dependency cycle — no fake ordered path is returned.
     """
-    # Build a prerequisite map for quick lookup
-    prereq_map = {}
-    if prerequisites:
-        for prereq in prerequisites:
-            target = prereq.get("target_skill", prereq.get("skill", ""))
-            source = prereq.get("source_skill", prereq.get("prerequisite", ""))
-            if target not in prereq_map:
-                prereq_map[target] = []
-            prereq_map[target].append(source)
-    
-    # Build the learning path by resolving prerequisites in order
-    path = []
-    learned_skills = set()
-    
+    # INTERVIEW: canonical map only — Phase 10R.1 removed the
+    # target_skill/source_skill fallback that silently produced {"": [""]}
+    # and made every skill look unblocked.
+    prereq_map = build_prerequisite_map(prerequisites)
+
+    mastery: Dict[str, float] = dict(current_skills or {})
+    required: Dict[str, float] = {}
+    if career_requirements:
+        for row in career_requirements:
+            if isinstance(row, dict) and row.get("skill_id"):
+                try:
+                    required[str(row["skill_id"])] = float(row.get("required_mastery", 0))
+                except (TypeError, ValueError):
+                    continue
+    for recommendation in recommendations:
+        skill_id = recommendation.get("skill_id", recommendation.get("skill", ""))
+        if not skill_id:
+            continue
+        mastery[str(skill_id)] = recommendation.get("current_mastery", mastery.get(skill_id, 0))
+        if skill_id not in required:
+            try:
+                required[str(skill_id)] = float(recommendation.get("required_mastery", 0))
+            except (TypeError, ValueError):
+                pass
+
     # Process recommendations in priority order (support priority_score legacy)
-    for recommendation in sorted(
-        recommendations,
+    ordered_recommendations = sorted(
+        [r for r in recommendations if r.get("skill_id", r.get("skill", ""))],
         key=lambda x: x.get("priority", x.get("priority_score", 0)),
         reverse=True
-    ):
-        skill_id = recommendation.get("skill_id", recommendation.get("skill", ""))
+    )
+
+    # INTERVIEW: deterministic topological order — a dependent skill can never
+    # be emitted before a prerequisite step. Raises on cycles (explicit error,
+    # never a silently invalid path). No LLM decides ordering.
+    step_ids = [str(r.get("skill_id", r.get("skill", ""))) for r in ordered_recommendations]
+    step_order = order_by_dependencies(step_ids, prereq_map)
+    depths = prerequisite_depths(step_order, prereq_map)
+    rec_by_id = {str(r.get("skill_id", r.get("skill", ""))): r for r in ordered_recommendations}
+
+    # Build the learning path in dependency order
+    path = []
+
+    for skill_id in step_order:
+        recommendation = rec_by_id[skill_id]
         priority = recommendation.get("priority", recommendation.get("priority_score", 0))
 
         # INTERVIEW: match resources per skill here — deterministic 50/20/20/10, no LLM
@@ -120,19 +172,24 @@ def generate_learning_path(
             except Exception:
                 skill_resources = []
 
-        # Resolve prerequisites - only add skill when prerequisites are met
-        unresolved_prereqs = _get_unresolved_prerequisites(
-            skill_id, learned_skills, prereq_map
+        # Resolve prerequisites against real mastery — a skill with no gap
+        # of its own is still blocked while its chain is unsatisfied.
+        unresolved = _get_unresolved_prerequisites(
+            skill_id, mastery, required, prereq_map
         )
 
-        if unresolved_prereqs:
+        if unresolved:
             # Skill is blocked by prerequisites - add prerequisite info
             path.append({
                 "skill": skill_id,
                 "skill_id": skill_id,
                 "status": "blocked",
-                "prerequisites": unresolved_prereqs,
+                "prerequisites": unresolved,
+                "current_mastery": recommendation.get("current_mastery", 0),
+                "required_mastery": recommendation.get("required_mastery", 0),
+                "gap": recommendation.get("gap", 0),
                 "priority": priority,
+                "prerequisite_depth": depths.get(skill_id, 0),
                 "resources": skill_resources,
             })
         else:
@@ -145,13 +202,13 @@ def generate_learning_path(
                 "required_mastery": recommendation.get("required_mastery", 0),
                 "gap": recommendation.get("gap", 0),
                 "priority": priority,
+                "prerequisite_depth": depths.get(skill_id, 0),
                 "resources": skill_resources,
             })
-            learned_skills.add(skill_id)
-    
+
     # Organize into phases based on dependency levels
-    phases = _organize_into_phases(path, prereq_map)
-    
+    phases = _organize_into_phases(path)
+
     return {
         "learning_path": path,
         "phases": phases,
@@ -163,84 +220,51 @@ def generate_learning_path(
 
 def _get_unresolved_prerequisites(
     skill_id: str,
-    learned_skills: set,
+    mastery: Dict[str, float],
+    required: Dict[str, float],
     prereq_map: Dict[str, List[str]]
 ) -> List[str]:
-    """Get list of prerequisites for a skill that haven't been learned yet."""
-    prerequisites = prereq_map.get(skill_id, [])
-    unresolved = []
-    
-    for prereq in prerequisites:
-        if prereq not in learned_skills:
-            unresolved.append(prereq)
-    
-    return unresolved
+    """Prerequisites of ``skill_id`` not yet mastered to the required bar.
+
+    A prerequisite counts as satisfied only when its current mastery meets
+    its required mastery (unknown mastery counts as 0). Sorted, deterministic.
+    """
+    return unresolved_prerequisites(skill_id, mastery, required, prereq_map)
 
 
-def _organize_into_phases(
-    path: List[dict],
-    prereq_map: Dict[str, List[str]]
-) -> List[Dict[str, List[str]]]:
-    """Organize learning path steps into phases based on prerequisite chains."""
-    phases = []
-    current_phase = []
-    max_prereq_depth = 0
-    
+def _organize_into_phases(path: List[dict]) -> List[Dict[str, object]]:
+    """Group learning-path steps into phases by dependency depth.
+
+    Each phase is one dependency layer: every prerequisite step sits in an
+    earlier phase than its dependents. Steps inside a phase keep path order
+    (priority within the layer). Empty layers are omitted, so phase numbers
+    stay compact even when mastered foundations collapse the lower layers.
+    """
+    by_depth: Dict[int, List[dict]] = {}
     for step in path:
-        if step.get("status") == "blocked":
-            # Blocked skills form their own phase or are noted
-            if current_phase:
-                phases.append({
-                    "phase": len(phases) + 1,
-                    "skills": current_phase,
-                    "description": f"Phase {len(phases) + 1}: Foundational skills"
-                })
-                current_phase = []
-        else:
-            # Count prerequisite depth for phase grouping
-            skill = step.get("skill", "")
-            prereq_depth = _get_prerequisite_depth(skill, prereq_map)
-            max_prereq_depth = max(max_prereq_depth, prereq_depth)
-            
-            current_phase.append({
-                "skill": skill,
-                "priority": step.get("priority", 0),
-                "prerequisite_depth": prereq_depth
-            })
-    
-    # Don't forget any remaining skills
-    if current_phase:
+        try:
+            depth = int(step.get("prerequisite_depth", 0))
+        except (TypeError, ValueError):
+            depth = 0
+        by_depth.setdefault(depth, []).append(step)
+
+    phases = []
+    for number, depth in enumerate(sorted(by_depth), start=1):
         phases.append({
-            "phase": len(phases) + 1,
-            "skills": current_phase,
-            "description": f"Phase {len(phases) + 1}: Advanced skills"
+            "phase": number,
+            "skills": [
+                {
+                    "skill": step.get("skill", ""),
+                    "priority": step.get("priority", 0),
+                    "prerequisite_depth": depth,
+                }
+                for step in by_depth[depth]
+            ],
+            "description": (
+                f"Phase {number}: Foundational skills"
+                if depth == 0
+                else f"Phase {number}: Builds on earlier phases"
+            ),
         })
-    
+
     return phases
-
-
-def _get_prerequisite_depth(
-    skill_id: str,
-    prereq_map: Dict[str, List[str]],
-    visited: Optional[set] = None
-) -> int:
-    """Get the depth of prerequisites for a skill."""
-    if visited is None:
-        visited = set()
-    
-    if skill_id in visited:
-        return 0
-    
-    visited.add(skill_id)
-    
-    prerequisites = prereq_map.get(skill_id, [])
-    if not prerequisites:
-        return 0
-    
-    # Recursively find max depth
-    max_depth = 0
-    for prereq in prerequisites:
-        depth = _get_prerequisite_depth(prereq, prereq_map, visited.copy())
-        max_depth = max(max_depth, depth + 1)
-    
-    return max_depth

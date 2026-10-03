@@ -67,6 +67,10 @@ def recalculate(
         prerequisites,
         resources=load_resources(),
         learner_level=learner_level or "beginner",
+        # INTERVIEW: same mastery source the gaps were computed from, so
+        # prerequisite readiness can never disagree with the skill gaps.
+        current_skills=current_skills,
+        career_requirements=requirements,
     )
     roadmap = generate_roadmap(
         learning_path=path.get("learning_path", []),
