@@ -6,45 +6,48 @@ def generate_roadmap(
     learning_path: List[dict],
     target_career: str,
     hours_per_week: Optional[float] = None,
+    prerequisites: Optional[List[dict]] = None,
 ) -> dict:
     """
     Generate a roadmap from the learning path.
-    
+
     Transforms the learning path into structured phases with milestones,
     estimated hours, and next action recommendations.
-    
+
+    Phases are dependency layers, not fixed-size chunks: every prerequisite
+    step sits in an earlier phase than its dependents. Depth comes from each
+    step's ``prerequisite_depth`` (attached by the path generator), or is
+    derived from ``prerequisites`` when steps carry none. With no dependency
+    information at all, skills form a single honest phase rather than fake
+    layers. Phase/response fields are unchanged so existing clients keep
+    working.
+
     Args:
-        learning_path: List of skill recommendations from the learning path generator
+        learning_path: List of skill steps from the learning path generator
         target_career: Target career for the roadmap (e.g., "GenAI Engineer")
         hours_per_week: Optional hours per week for time estimation
-        
+        prerequisites: Optional canonical prerequisite edges, used only to
+            derive depths when steps do not already carry ``prerequisite_depth``
+
     Returns:
         Dictionary containing the structured roadmap
     """
+    # INTERVIEW: dependency layers replace V1 fixed 3-skills-per-phase
+    # chunking — phase structure now reflects the prerequisite graph
+    # (Phase 10R.1). No LLM decides phase structure.
+    depths = _resolve_step_depths(learning_path, prerequisites)
+
+    layers: dict = {}
+    for item, depth in zip(learning_path, depths):
+        layers.setdefault(depth, []).append(item)
+
     phases = []
-    current_phase = []
-    phase_number = 1
-
-    # Group skills into phases (3 skills per phase for V1)
-    for item in learning_path:
-        current_phase.append(item)
-        
-        if len(current_phase) >= 3:
-            phases.append(
-                build_phase(
-                    current_phase,
-                    phase_number
-                )
-            )
-            phase_number += 1
-            current_phase = []
-
-    # Add remaining skills as final phase
-    if current_phase:
+    for phase_number, depth in enumerate(sorted(layers), start=1):
         phases.append(
             build_phase(
-                current_phase,
-                phase_number
+                layers[depth],
+                phase_number,
+                depth=depth,
             )
         )
 
@@ -76,17 +79,58 @@ def generate_roadmap(
     }
 
 
+def _resolve_step_depths(
+    learning_path: List[dict],
+    prerequisites: Optional[List[dict]] = None,
+) -> List[int]:
+    """Prerequisite depth per learning-path step, in step order.
+
+    Prefers the ``prerequisite_depth`` the path generator already attached;
+    otherwise derives depths from ``prerequisites`` restricted to the steps
+    at hand     (satisfied/external foundations count as depth 0). Falls back to
+    0 for every step when no dependency information exists.
+    """
+    provided = [
+        step.get("prerequisite_depth")
+        for step in learning_path
+        if isinstance(step, dict)
+    ]
+    if provided and all(isinstance(d, (int, float)) for d in provided):
+        return [int(d) for d in provided]
+
+    if prerequisites:
+        from app.services.prerequisites import (
+            build_prerequisite_map,
+            prerequisite_depths,
+        )
+
+        prereq_map = build_prerequisite_map(prerequisites)
+        step_ids = [
+            str(step.get("skill_id", step.get("skill", "")))
+            for step in learning_path
+            if isinstance(step, dict)
+        ]
+        try:
+            computed = prerequisite_depths(step_ids, prereq_map)
+            return [computed.get(sid, 0) for sid in step_ids]
+        except Exception:
+            pass
+    return [0 for _ in learning_path]
+
+
 def build_phase(
     skills: List[dict],
-    phase_number: int
+    phase_number: int,
+    depth: int = 0,
 ) -> dict:
     """
     Build a phase from a list of skills.
-    
+
     Args:
         skills: List of skill dictionaries from learning path
         phase_number: Phase number for identification
-        
+        depth: Prerequisite depth of this dependency layer (0 = foundations)
+
     Returns:
         Dictionary representing a roadmap phase
     """
@@ -118,13 +162,18 @@ def build_phase(
     # Filter out empty skill IDs
     skill_ids = [sid for sid in skill_ids if sid]
 
+    blocked = sum(1 for skill in skills if isinstance(skill, dict) and skill.get("status") == "blocked")
+    if depth <= 0:
+        layer_text = "Foundations — skills with no open prerequisites. Start here."
+    else:
+        layer_text = "Builds on earlier phases — unlocks as prerequisite skills progress."
+    if blocked:
+        layer_text += " Contains blocked skills: resolve their prerequisites first."
+
     return {
         "id": f"phase_{phase_number}",
         "title": f"Phase {phase_number}",
-        "description": (
-            "Build the skills required "
-            "for the next stage of your career."
-        ),
+        "description": layer_text,
         "skills": skills,  # Keep original skill data
         "milestone": {
             "id": f"milestone_{phase_number}",

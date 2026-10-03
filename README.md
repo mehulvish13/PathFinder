@@ -52,7 +52,7 @@ Scripts: `npm run dev`, `npm run build` (typechecks with `tsc -b` then builds), 
 - **Data sources (3 real endpoints)**: `POST /api/adaptation/recalculate` (gaps, recommendations, learning-path steps with ready/blocked status + prerequisites, phased roadmap + next action) + `GET /api/progress/dashboard/{learner_id}` (overall progress, optional) + `POST /api/progress/complete` (Mark Complete per resource).
 - **Sections**: career header → overview stats (phases, ready/blocked skill counts, duration, progress) → Already-mastered strip → phase timeline (Current vs Upcoming — the backend exposes no per-phase completion, so none is invented) → phase sections with milestone banners + step cards (mastery bars, importance/readiness badges, prerequisite chains, resources) → Next Action → links to `/skills` + `/assessment`.
 - **Adaptive proof (live)**: completed a resource → mastery 0→10 → recalculated gap 75→65 on refresh. Backend remains authoritative; no optimistic mastery.
-- **Backend change**: none. Known backend ticket (kept for 8G): `generate_learning_path` reads `target_skill`/`source_skill` keys while `load_prerequisites()` returns `skill_id`/`prerequisite_skill_id`, so `blocked` steps don't currently emerge; the UI renders them defensively.
+- **Backend change**: none. Known backend ticket (kept for 8G): `generate_learning_path` reads `target_skill`/`source_skill` keys while `load_prerequisites()` returns `skill_id`/`prerequisite_skill_id`, so `blocked` steps don't currently emerge; the UI renders them defensively. (Resolved in Phase 10R.1: canonical `skill_id`/`prerequisite_skill_id` contract, mastery-aware readiness, topological ordering, dependency-layered roadmap.)
 
 **Verified 2026-10-03 (Phase 8C)**: `npm run typecheck` ✅, `npm run build` ✅ (70 modules), `/roadmap` serves HTTP 200; Phase 6 regression 10/10, Phase 7 regression 4/4. Merged via PR #3.
 
@@ -102,7 +102,7 @@ Scripts: `npm run dev`, `npm run build` (typechecks with `tsc -b` then builds), 
 
 - **What changed**: skill-context query params preserved across `/skills` ↔ `/assessment` ↔ `/roadmap` ↔ `/tutor`; post-quiz refresh surfaces `cleared_skills` + updated next action without manual reload.
 - **Files**: `LearningStepCard.tsx`, `SkillDetail.tsx`, `Assessment.tsx`, `Skills.tsx` (deep-link params only).
-- **Backend change**: none. Known ticket carried: `generate_learning_path` reads `target_skill`/`source_skill` while `load_prerequisites()` returns `skill_id`/`prerequisite_skill_id`, so `blocked` steps don't emerge; UIs render defensively.
+- **Backend change**: none. Known ticket carried: `generate_learning_path` reads `target_skill`/`source_skill` while `load_prerequisites()` returns `skill_id`/`prerequisite_skill_id`, so `blocked` steps don't emerge; UIs render defensively. (Resolved in Phase 10R.1: canonical `skill_id`/`prerequisite_skill_id` contract, mastery-aware readiness, topological ordering, dependency-layered roadmap.)
 
 **Verified 2026-10-03 (Phase 8G)**: `npm run typecheck` ✅, `npm run build` ✅; Phase 6 regression 10/10, Phase 7 regression 4/4.
 

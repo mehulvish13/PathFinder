@@ -153,20 +153,37 @@ def load_career_requirements(career_id: str) -> list[dict]:
 
 
 def load_prerequisites() -> list[dict]:
-    """Returns [{skill_id, prerequisite_skill_id, type}] prerequisite edges."""
+    """Returns canonical prerequisite edges.
+
+    Canonical internal shape (single source of truth for every consumer):
+
+        {"skill_id": <target>, "prerequisite_skill_id": <must-know-first>, "type": ...}
+
+    Meaning: ``prerequisite_skill_id`` must be mastered before ``skill_id``.
+    Example: {"skill_id": "rag", "prerequisite_skill_id": "embeddings"}
+    means ``embeddings -> rag``.
+
+    INTERVIEW: normalization lives here so services never branch on key
+    variants — raw JSON -> this function -> canonical objects -> services.
+    Malformed rows (blank ids) are dropped, never turned into "" edges.
+    """
     raw = _load_json(DATA_DIR / "prerequisites.json")
     out = []
     for row in raw:
         if not isinstance(row, dict):
             continue
-        sid, pre = row.get("skill_id"), row.get("prerequisite_skill_id")
+        sid = row.get("skill_id")
+        pre = row.get("prerequisite_skill_id")
+        if not sid or not pre:
+            continue
+        sid, pre = str(sid).strip(), str(pre).strip()
         if not sid or not pre:
             continue
         out.append(
             {
-                "skill_id": str(sid),
-                "prerequisite_skill_id": str(pre),
-                "type": str(row.get("type", "hard")),
+                "skill_id": sid,
+                "prerequisite_skill_id": pre,
+                "type": str(row.get("type") or "hard"),
             }
         )
     return out
