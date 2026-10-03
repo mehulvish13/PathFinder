@@ -1668,3 +1668,10 @@ React + Vite + TS shell (8A c84d2db) consuming the FastAPI backend via centraliz
 - 8D skills (d45db02, PR #4): skill list/detail joined from recalculate + recorded mastery + mastery_history (no second gap engine); quiz-sourced events labeled Assessment. Live proof: 100% RAG quiz drove mastery 0->70, gap 75->5.
 - Verified each phase: typecheck + build green; Phase 6 10/10, Phase 7 4/4; routes serve 200 with live data. Backend production logic untouched.
 - Known backend ticket (8G): generate_learning_path expects target_skill/source_skill keys while load_prerequisites() returns skill_id/prerequisite_skill_id, so blocked steps do not emerge; UIs render them defensively.
+
+## Phase 9 Testing + Polish (2026-10-03)
+
+- Backend sweep 14/14 (profile, path, progress x6, assessment x3, adaptation, tutor, explain) + Phase 6 10/10 + Phase 7 4/4 + full RAG journey green; all routes serve 200.
+- Removed dead duplicate backend/app/services/skill_gap_service.py (byte-identical to services/skills copy; zero importers).
+- Prereq key-mismatch experiment (sandbox copy): accepting skill_id/prerequisite_skill_id keeps suite 10/10 but flips fresh-learner path 26-ready/0-blocked to 5-ready/21-blocked (single-sweep ordering, no topological pass). Behavior-changing, deferred to a product decision, not applied.
+- Convention: run backend suites from an empty CWD (sqlite URL is CWD-relative); never run twice against the same scratch DB (test_2 asserts exact row counts).
