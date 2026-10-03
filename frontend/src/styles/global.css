@@ -1169,6 +1169,113 @@ a.resource-item__title:hover {
   color: #1e7a3c;
 }
 
+/* ---------------------------------------------------------------- */
+/* Skills workspace                                                */
+/* ---------------------------------------------------------------- */
+
+.button--active {
+  border-color: var(--pf-primary);
+  background: var(--pf-primary-soft);
+  color: var(--pf-primary);
+}
+
+.skill-list {
+  list-style: none;
+  margin: 12px 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 560px;
+  overflow-y: auto;
+}
+
+.skill-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid var(--pf-border);
+  border-radius: var(--pf-radius-sm);
+  background: var(--pf-surface);
+  cursor: pointer;
+  text-align: left;
+  font: inherit;
+  color: inherit;
+}
+
+.skill-row:hover {
+  border-color: var(--pf-border-strong);
+  background: var(--pf-surface-muted);
+}
+
+.skill-row--selected {
+  border-color: var(--pf-primary);
+  background: var(--pf-primary-soft);
+}
+
+.skill-row__main {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.skill-row__name {
+  font-weight: 600;
+  font-size: 0.92rem;
+}
+
+.skill-row__meta {
+  font-size: 0.78rem;
+  color: var(--pf-text-muted);
+}
+
+.skill-row__badges {
+  display: flex;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+/* Mastery history timeline */
+
+.history-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.history-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--pf-border);
+  font-size: 0.88rem;
+}
+
+.history-item:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.history-item__skill {
+  font-weight: 600;
+  flex: 1;
+  min-width: 0;
+}
+
+.history-item__right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
 /* Responsive */
 
 @media (max-width: 900px) {
