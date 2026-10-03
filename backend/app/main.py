@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+import os
 from app.api.routes.profile import router as profile_router
 from app.api.routes.path import router as path_router
 from app.api.routes.progress import router as progress_router
@@ -30,15 +31,24 @@ app = FastAPI(
 )
 
 # Allow the local React dev server (Vite) to call the API from the browser.
-# Origins are limited to local development hosts.
+# Origins default to local development hosts; deployed frontend origin(s) can
+# be appended via the CORS_ORIGINS env var (comma-separated, e.g. on Render).
+# INTERVIEW: env-driven CORS keeps local dev working unchanged while letting
+# deployment add origins without a code change per environment.
+_CORS_DEFAULT_ORIGINS = [
+    "http://localhost:5173",
+    "http://127.0.0.1:5173",
+    "http://localhost:4173",
+    "http://127.0.0.1:4173",
+]
+_CORS_EXTRA_ORIGINS = [
+    origin.strip()
+    for origin in os.getenv("CORS_ORIGINS", "").split(",")
+    if origin.strip()
+]
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "http://localhost:5173",
-        "http://127.0.0.1:5173",
-        "http://localhost:4173",
-        "http://127.0.0.1:4173",
-    ],
+    allow_origins=_CORS_DEFAULT_ORIGINS + _CORS_EXTRA_ORIGINS,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

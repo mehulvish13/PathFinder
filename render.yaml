@@ -1,0 +1,19 @@
+# PathFinder backend on Render (free tier, no card required).
+# Blueprint: https://render.com/docs/blueprint-spec
+# Dashboard steps: New → Blueprint → select repo → set GEMINI_API_KEY +
+# CORS_ORIGINS (your Vercel URL) → Apply.
+services:
+  - type: web
+    name: pathfinder-api
+    runtime: python
+    rootDir: backend
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /health
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.13.0
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: CORS_ORIGINS
+        sync: false
