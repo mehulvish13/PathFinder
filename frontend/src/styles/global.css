@@ -569,6 +569,327 @@ a {
   margin-bottom: 6px;
 }
 
+/* ---------------------------------------------------------------- */
+/* Dashboard                                                       */
+/* ---------------------------------------------------------------- */
+
+.stack-16 {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* Gap-based layout owns the spacing; the sibling margin rule must not add to it. */
+.stack-16 > .card + .card,
+.grid > .card + .card {
+  margin-top: 0;
+}
+
+.section-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.card--featured {
+  border-left: 3px solid var(--pf-accent);
+}
+
+/* Loading placeholders */
+
+.skeleton {
+  position: relative;
+  overflow: hidden;
+  border-radius: var(--pf-radius-sm);
+  background: #e9ecf1;
+}
+
+.skeleton::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  transform: translateX(-100%);
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0),
+    rgba(255, 255, 255, 0.75),
+    rgba(255, 255, 255, 0)
+  );
+  animation: pf-shimmer 1.4s infinite;
+}
+
+@keyframes pf-shimmer {
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .skeleton::after {
+    animation: none;
+  }
+}
+
+/* Mastery bars — visual mapping of backend current/required values */
+
+.gap-bar {
+  position: relative;
+  height: 10px;
+  background: var(--pf-surface-muted);
+  border: 1px solid var(--pf-border);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.gap-bar__fill {
+  height: 100%;
+  background: var(--pf-primary);
+}
+
+.gap-bar__target {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: var(--pf-accent);
+}
+
+/* Skill gaps */
+
+.gap-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.gap-item {
+  padding: 12px 0;
+  border-bottom: 1px solid var(--pf-border);
+}
+
+.gap-item:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.gap-item__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+.gap-item__name {
+  font-weight: 600;
+}
+
+.gap-item__meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-top: 8px;
+  font-size: 0.8rem;
+  color: var(--pf-text-muted);
+}
+
+.gap-item__gap {
+  font-weight: 600;
+  color: var(--pf-text);
+}
+
+/* Current focus */
+
+.focus-skill-name {
+  font-size: 1.15rem;
+  font-weight: 600;
+  margin-bottom: 12px;
+}
+
+.focus-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.focus-grid--tight {
+  margin-top: 12px;
+}
+
+.metric__label {
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--pf-text-subtle);
+  font-weight: 600;
+}
+
+.metric__value {
+  font-size: 1.05rem;
+  font-weight: 600;
+  margin-top: 4px;
+}
+
+.metric__hint {
+  font-size: 0.78rem;
+  color: var(--pf-text-subtle);
+  margin-top: 2px;
+}
+
+.focus-activity {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-top: 16px;
+  padding-top: 12px;
+  border-top: 1px solid var(--pf-border);
+  font-size: 0.9rem;
+}
+
+/* Roadmap preview */
+
+.roadmap-meta {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.phase-current {
+  margin-top: 16px;
+  padding: 14px;
+  border: 1px solid var(--pf-border);
+  border-radius: var(--pf-radius-sm);
+  background: var(--pf-surface-muted);
+}
+
+.phase-current__title {
+  font-weight: 600;
+  margin: 10px 0 4px;
+}
+
+.phase-strip {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 14px;
+}
+
+.phase-chip {
+  font-size: 0.76rem;
+  font-weight: 600;
+  padding: 3px 8px;
+  border-radius: var(--pf-radius-sm);
+  border: 1px solid var(--pf-border);
+  background: var(--pf-surface-muted);
+  color: var(--pf-text-muted);
+}
+
+.phase-chip--current {
+  border-color: #d5e3f0;
+  background: var(--pf-primary-soft);
+  color: var(--pf-primary);
+}
+
+.chip {
+  font-size: 0.76rem;
+  padding: 2px 8px;
+  border-radius: 999px;
+  border: 1px solid var(--pf-border);
+  background: var(--pf-surface);
+  color: var(--pf-text-muted);
+}
+
+/* Milestones */
+
+.milestone-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.milestone-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--pf-border);
+  font-size: 0.88rem;
+}
+
+.milestone-item:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.milestone-item__skill {
+  font-weight: 600;
+}
+
+.milestone-item__right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* Next action */
+
+.next-action__title {
+  font-size: 1.2rem;
+  font-weight: 600;
+  margin-top: 2px;
+}
+
+.next-action__why {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px solid var(--pf-border);
+  font-size: 0.9rem;
+  color: var(--pf-text-muted);
+}
+
+/* Quick actions */
+
+.quick-tile {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+  padding: 14px 16px;
+  border: 1px solid var(--pf-border);
+  border-radius: var(--pf-radius);
+  background: var(--pf-surface);
+  text-decoration: none;
+  transition: border-color 0.12s ease, background 0.12s ease;
+}
+
+.quick-tile:hover {
+  border-color: var(--pf-border-strong);
+  background: var(--pf-surface-muted);
+}
+
+.quick-tile:focus-visible {
+  outline: 2px solid var(--pf-primary);
+  outline-offset: 2px;
+}
+
+.quick-tile__title {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--pf-text);
+}
+
+.quick-tile__description {
+  font-size: 0.8rem;
+  color: var(--pf-text-muted);
+}
+
 /* Responsive */
 
 @media (max-width: 900px) {
@@ -606,12 +927,21 @@ a {
   .grid--4 {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
+
+  .focus-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
 
 @media (max-width: 620px) {
   .grid--2,
   .grid--3,
   .grid--4 {
+    grid-template-columns: 1fr;
+  }
+
+  .focus-grid,
+  .roadmap-meta {
     grid-template-columns: 1fr;
   }
 

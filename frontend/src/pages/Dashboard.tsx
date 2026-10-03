@@ -1,24 +1,85 @@
 import { useCallback } from "react";
-import { PageHeader } from "../components/common/PageHeader";
-import { StatCard } from "../components/common/StatCard";
-import { LoadingState } from "../components/common/LoadingState";
-import { ErrorState } from "../components/common/ErrorState";
 import { EmptyState } from "../components/common/EmptyState";
+import { ErrorState } from "../components/common/ErrorState";
+import { CurrentFocusCard } from "../components/dashboard/CurrentFocusCard";
+import { DashboardHeader } from "../components/dashboard/DashboardHeader";
+import {
+  DashboardPathSkeleton,
+  DashboardSkeleton,
+} from "../components/dashboard/DashboardSkeleton";
+import { MilestonesCard } from "../components/dashboard/MilestonesCard";
+import { NextActionCard } from "../components/dashboard/NextActionCard";
+import { QuickActions } from "../components/dashboard/QuickActions";
+import { RoadmapPreview } from "../components/dashboard/RoadmapPreview";
+import { SkillGapsSection } from "../components/dashboard/SkillGapsSection";
+import { SummaryCards } from "../components/dashboard/SummaryCards";
 import { useLearner } from "../app/LearnerContext";
 import { useAsync } from "../hooks/useAsync";
 import { api, ApiError } from "../services/api";
-import type { Dashboard as DashboardData, HealthResponse } from "../types/api";
-import {
-  formatHours,
-  formatPercent,
-  humanizeCareerId,
-  humanizeSkillId,
-} from "../utils/format";
+import { humanizeCareerId } from "../utils/format";
+import type {
+  AdaptationResult,
+  Dashboard as DashboardData,
+} from "../types/api";
 
+/** Sentinel strings the backend returns when there is nothing to do. */
+const NO_PROGRESS_ACTION = "No action available";
+const NO_PATH_ACTIONS = new Set([
+  "No learning path available yet.",
+  "No next action available.",
+]);
+
+function progressErrorInfo(error: Error): { title: string; message: string } {
+  if (error instanceof ApiError) {
+    if (error.kind === "network" || error.kind === "timeout") {
+      return {
+        title: "Backend unreachable",
+        message: error.message,
+      };
+    }
+    if (error.kind === "http") {
+      return {
+        title: `The API returned an error${error.status ? ` (HTTP ${error.status})` : ""}`,
+        message: error.message,
+      };
+    }
+  }
+  return { title: "Could not load your learning state", message: error.message };
+}
+
+function pathErrorInfo(error: Error): { title: string; message: string } {
+  if (error instanceof ApiError && error.status === 404) {
+    return {
+      title: "No learning path for this career",
+      message: `${error.message} Pick another target career in the header, then retry.`,
+    };
+  }
+  if (
+    error instanceof ApiError &&
+    (error.kind === "network" || error.kind === "timeout")
+  ) {
+    return { title: "Backend unreachable", message: error.message };
+  }
+  return { title: "Could not load your learning path", message: error.message };
+}
+
+/**
+ * PathFinder dashboard.
+ *
+ * Data sources (both are existing backend endpoints, no invented APIs):
+ *  - GET  /api/progress/dashboard/{learner_id} → progress, skill mastery,
+ *    mastery milestones and the progress-derived next action.
+ *  - POST /api/adaptation/recalculate → skill gaps, recommendations and the
+ *    roadmap (current state + roadmap next action).
+ *
+ * The dashboard recalculates the path on every load, so any mastery change made
+ * in the backend (e.g. after an assessment in Phase 8E) is reflected here.
+ * No mastery, gap or priority value is computed in React.
+ */
 export default function Dashboard() {
-  const { learnerId, targetCareer } = useLearner();
+  const { learnerId, targetCareer, hoursPerWeek } = useLearner();
 
-  const dashboard = useAsync<DashboardData>(
+  const progress = useAsync<DashboardData>(
     useCallback(
       (signal: AbortSignal) => api.getDashboard(learnerId, signal),
       [learnerId],
@@ -26,225 +87,153 @@ export default function Dashboard() {
     [learnerId],
   );
 
-  const health = useAsync<HealthResponse>(
-    useCallback((signal: AbortSignal) => api.getHealth(signal), []),
-    [],
+  const path = useAsync<AdaptationResult>(
+    useCallback(
+      (signal: AbortSignal) =>
+        api.recalculate(
+          {
+            learner_id: learnerId,
+            target_career: targetCareer,
+            hours_per_week: hoursPerWeek,
+          },
+          signal,
+        ),
+      [learnerId, targetCareer, hoursPerWeek],
+    ),
+    [learnerId, targetCareer, hoursPerWeek],
   );
 
-  const data = dashboard.data;
-  // Defensive: a backend payload that is valid JSON but missing these arrays
-  // must not crash rendering. Backend remains the source of the values.
-  const skillMastery = Array.isArray(data?.skill_mastery) ? data.skill_mastery : [];
+  const refreshAll = useCallback(() => {
+    progress.reload();
+    path.reload();
+  }, [progress.reload, path.reload]);
+
+  const data = progress.data;
+  const pathData = path.data;
+
+  // Defensive: a JSON payload that is missing these arrays must not crash the
+  // dashboard. The backend stays the source of every value below.
   const milestones = Array.isArray(data?.milestones) ? data.milestones : [];
+  const skillGaps = Array.isArray(pathData?.skill_gaps) ? pathData.skill_gaps : [];
+  const recommendations = Array.isArray(pathData?.recommendations)
+    ? pathData.recommendations
+    : [];
+  const roadmap =
+    pathData?.roadmap && Array.isArray(pathData.roadmap.phases)
+      ? pathData.roadmap
+      : null;
+
+  // Canonical career name comes from the backend when it answered; otherwise we
+  // fall back to the career the learner selected in the header.
+  const career = pathData?.target_career ?? humanizeCareerId(targetCareer);
+
+  const progressAction =
+    data?.next_action && data.next_action !== NO_PROGRESS_ACTION
+      ? data.next_action
+      : null;
+  const roadmapAction =
+    roadmap?.next_action && !NO_PATH_ACTIONS.has(roadmap.next_action)
+      ? roadmap.next_action
+      : null;
+
+  const header = (
+    <DashboardHeader
+      career={career}
+      learnerId={learnerId}
+      hoursPerWeek={hoursPerWeek}
+      refreshing={progress.loading || path.loading}
+      onRefresh={refreshAll}
+    />
+  );
+
+  const milestonesCard = <MilestonesCard milestones={milestones} />;
+
+  let body: JSX.Element | null = null;
+
+  if (progress.loading) {
+    body = <DashboardSkeleton />;
+  } else if (progress.error) {
+    const info = progressErrorInfo(progress.error);
+    body = <ErrorState {...info} onRetry={progress.reload} />;
+  } else if (!data) {
+    body = (
+      <EmptyState
+        icon="▦"
+        title="No learning state available"
+        message="The backend returned no dashboard data for this learner."
+      />
+    );
+  } else {
+    const noActivity =
+      data.total_resources === 0 &&
+      data.skill_mastery.length === 0 &&
+      data.milestones.length === 0;
+
+    if (path.loading) {
+      body = <DashboardPathSkeleton />;
+    } else if (path.error) {
+      const info = pathErrorInfo(path.error);
+      // Progress data is still valid, so its milestones stay visible below the
+      // error and can be recovered with Retry.
+      body = (
+        <>
+          <ErrorState {...info} onRetry={path.reload} />
+          <div style={{ marginTop: 16 }}>{milestonesCard}</div>
+        </>
+      );
+    } else if (!pathData) {
+      body = null;
+    } else if (noActivity && skillGaps.length === 0 && !roadmap?.phases.length) {
+      body = (
+        <EmptyState
+          icon="◈"
+          title="No learning path yet"
+          message="Set your learner and target career in the header, then refresh to generate a personalized path."
+          action={
+            <button type="button" className="button" onClick={refreshAll}>
+              Refresh
+            </button>
+          }
+        />
+      );
+    } else {
+      const focus = recommendations[0] ?? null;
+      body = (
+        <>
+          <SummaryCards data={data} />
+
+          <CurrentFocusCard
+            focus={focus}
+            activity={progressAction}
+            career={pathData.target_career ?? null}
+          />
+
+          <SkillGapsSection gaps={skillGaps} career={pathData.target_career ?? null} />
+
+          <div className="grid grid--2">
+            <RoadmapPreview roadmap={roadmap} hoursPerWeek={hoursPerWeek} />
+            {milestonesCard}
+          </div>
+
+          <NextActionCard
+            progressAction={progressAction}
+            roadmapAction={roadmapAction}
+            focus={focus}
+            progress={data}
+            career={pathData.target_career ?? null}
+          />
+        </>
+      );
+    }
+  }
 
   return (
     <>
-      <PageHeader
-        eyebrow="Current learning state"
-        title={`Welcome back · Learner #${learnerId}`}
-        description={`Target career: ${humanizeCareerId(targetCareer)}. This overview is loaded from the PathFinder backend.`}
-        actions={
-          <button
-            type="button"
-            className="button button--secondary"
-            onClick={() => {
-              dashboard.reload();
-              health.reload();
-            }}
-          >
-            Refresh
-          </button>
-        }
-      />
-
-      {/* Backend connectivity proof */}
-      <div className="card">
-        <div className="row" style={{ justifyContent: "space-between" }}>
-          <div>
-            <div className="card__title">Backend connectivity</div>
-            <div className="card__subtitle">
-              Live status from <code>GET /health</code> and{" "}
-              <code>GET /api/progress/dashboard/{learnerId}</code>.
-            </div>
-          </div>
-          <span
-            className={
-              "connection " +
-              (health.loading
-                ? "connection--checking"
-                : health.error
-                  ? "connection--error"
-                  : "connection--ok")
-            }
-          >
-            <span className="connection__dot" aria-hidden="true" />
-            {health.loading
-              ? "Checking…"
-              : health.error
-                ? "Backend unreachable"
-                : "Backend connected"}
-          </span>
-        </div>
-        {health.error ? (
-          <p className="state__title" style={{ marginTop: 10, color: "var(--pf-danger)" }}>
-            {health.error.message}
-          </p>
-        ) : null}
+      {header}
+      {body ? <div className="stack-16">{body}</div> : null}
+      <div style={{ marginTop: 16 }}>
+        <QuickActions />
       </div>
-
-      {dashboard.loading ? (
-        <div style={{ marginTop: 16 }}>
-          <LoadingState message="Loading your learning state…" />
-        </div>
-      ) : dashboard.error ? (
-        <div style={{ marginTop: 16 }}>
-          <ErrorState
-            title={
-              dashboard.error instanceof ApiError && dashboard.error.status === 404
-                ? "Learner not found"
-                : "Could not load your learning state"
-            }
-            message={dashboard.error.message}
-            onRetry={dashboard.reload}
-          />
-        </div>
-      ) : data ? (
-        <>
-          <div className="grid grid--4" style={{ marginTop: 16 }}>
-            <StatCard
-              label="Overall progress"
-              value={formatPercent(data.overall_progress)}
-              hint={`${data.completed_resources} of ${data.total_resources} resources`}
-            />
-            <StatCard
-              label="In progress"
-              value={data.in_progress_resources}
-              hint="Resources currently started"
-            />
-            <StatCard
-              label="Not started"
-              value={data.not_started_resources}
-              hint="Queued resources"
-            />
-            <StatCard
-              label="Time remaining"
-              value={formatHours(data.estimated_time_remaining)}
-              hint="Estimated from resource hours"
-            />
-          </div>
-
-          <div className="card" style={{ marginTop: 16 }}>
-            <div className="card__title">Next action</div>
-            <p className="card__subtitle">
-              Determined by the backend from your current progress.
-            </p>
-            <p style={{ marginTop: 10, fontWeight: 600 }}>{data.next_action}</p>
-            {data.progress_bar ? (
-              <p className="subtle" style={{ marginTop: 6, fontFamily: "monospace" }}>
-                {data.progress_bar}
-              </p>
-            ) : null}
-          </div>
-
-          <div className="card">
-            <div className="row" style={{ justifyContent: "space-between" }}>
-              <div>
-                <div className="card__title">Skill mastery</div>
-                <div className="card__subtitle">
-                  Latest mastery recorded by the backend.
-                </div>
-              </div>
-              <span className="badge badge--neutral">
-                {skillMastery.length} tracked
-              </span>
-            </div>
-
-            {skillMastery.length === 0 ? (
-              <EmptyState
-                icon="◆"
-                title="No mastery recorded yet"
-                message="Complete a resource or pass an assessment to start tracking skills."
-              />
-            ) : (
-              <table className="table" style={{ marginTop: 12 }}>
-                <thead>
-                  <tr>
-                    <th>Skill</th>
-                    <th>Current</th>
-                    <th>Target</th>
-                    <th>Gap</th>
-                    <th>Status</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {skillMastery.map((s) => (
-                    <tr key={s.skill_id}>
-                      <td>{s.skill_name || humanizeSkillId(s.skill_id)}</td>
-                      <td>{formatPercent(s.current_mastery)}</td>
-                      <td>{formatPercent(s.target_mastery)}</td>
-                      <td>{formatPercent(s.gap)}</td>
-                      <td>
-                        <span
-                          className={
-                            "badge " +
-                            (s.status === "ready" ? "badge--success" : "badge--warning")
-                          }
-                        >
-                          {s.status}
-                        </span>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            )}
-          </div>
-
-          <div className="card">
-            <div className="card__title">Recent milestones</div>
-            <div className="card__subtitle">
-              Mastery events recorded by the backend.
-            </div>
-
-            {milestones.length === 0 ? (
-              <EmptyState
-                icon="◈"
-                title="No milestones yet"
-                message="Milestones appear as you make progress through your roadmap."
-              />
-            ) : (
-              <table className="table" style={{ marginTop: 12 }}>
-                <thead>
-                  <tr>
-                    <th>Skill</th>
-                    <th>Mastery</th>
-                    <th>Source</th>
-                    <th>Recorded</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {milestones.slice(0, 8).map((m, idx) => (
-                    <tr key={`${m.skill_id}-${m.recorded_at ?? idx}`}>
-                      <td>{humanizeSkillId(m.skill_id)}</td>
-                      <td>{formatPercent(m.mastery)}</td>
-                      <td>{m.source}</td>
-                      <td className="muted">{m.recorded_at ?? "—"}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            )}
-          </div>
-        </>
-      ) : (
-        <div style={{ marginTop: 16 }}>
-          <EmptyState
-            icon="▦"
-            title="No learning state available"
-            message="The backend returned no dashboard data for this learner."
-          />
-        </div>
-      )}
     </>
   );
 }
