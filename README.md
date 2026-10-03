@@ -4,7 +4,7 @@ AI-Powered Personalized Learning Path Recommender
 
 ## 🟢 PHASE 8A — React Frontend Foundation
 
-**Status**: Frontend foundation complete ✅ — a React + Vite + TypeScript shell that consumes the existing FastAPI backend. Feature modules land in Phases 8B–8G.
+**Status**: Frontend foundation complete ✅ — a React + Vite + TypeScript shell that consumes the existing FastAPI backend. Dashboard landed in Phase 8B (`756f536`); remaining modules land in Phases 8C–8G.
 
 - **Stack**: React 18, Vite 5, TypeScript (strict), React Router 6, native `fetch` API client (no axios), plain CSS (no Tailwind/UI libraries).
 - **Routes** (root redirects to `/dashboard`): `/dashboard`, `/roadmap`, `/skills`, `/assessment`, `/tutor`.
@@ -27,6 +27,21 @@ npm run dev               # http://localhost:5173
 > The frontend falls back to `http://127.0.0.1:8000` when `.env` is absent, so it still works with the default local backend without configuration.
 
 Scripts: `npm run dev`, `npm run build` (typechecks with `tsc -b` then builds), `npm run preview`, `npm run typecheck`.
+
+---
+
+## 🟢 PHASE 8B — Personalized Dashboard (`756f536`)
+
+**Status**: The basic Dashboard connectivity page is now the real PathFinder dashboard ✅ — it answers "Where am I in my learning journey, and what should I do next?" using only backend data. No hardcoded statistics; no frontend business logic.
+
+- **Data sources (2 real endpoints, no invented APIs)**: `GET /api/progress/dashboard/{learner_id}` (progress, skill mastery, milestones, time remaining, progress-derived next action) + `POST /api/adaptation/recalculate` (skill gaps, recommendations, roadmap + roadmap next action).
+- **Sections**: welcome/learner header → 4 summary cards → Current Focus (backend's top-priority recommendation) → Skill Gaps → Roadmap preview + Recent milestones → Next Action → Quick Actions (`/roadmap`, `/skills`, `/assessment`, `/tutor`).
+- **Components**: 9 new in `frontend/src/components/dashboard/` (`DashboardHeader`, `SummaryCards`, `CurrentFocusCard`, `SkillGapsSection`, `RoadmapPreview`, `MilestonesCard`, `NextActionCard`, `QuickActions`, `DashboardSkeleton`); reuses `StatCard`, `PageHeader`, `ErrorState`, `EmptyState`.
+- **States**: skeleton loading, distinct backend-unreachable / HTTP-error / no-data / partial-data errors with retry, honest empty states ("No learning path yet", "You're currently caught up").
+- **Adaptive-ready**: fresh fetch on every load plus a Refresh button, so post-assessment mastery changes appear automatically. Backend remains the source of truth.
+- **Backend change**: none.
+
+**Verified 2026-10-03 (Phase 8B)**: `npm run typecheck` ✅, `npm run build` ✅ (63 modules), `/dashboard` serves HTTP 200 with live data (26 gaps, 9-phase roadmap for learner 1); Phase 6 regression 10/10, Phase 7 regression 4/4.
 
 ### Backend setup
 
