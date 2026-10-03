@@ -1,4 +1,5 @@
 import { useCallback, useMemo, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import { EmptyState } from "../components/common/EmptyState";
 import { ErrorState } from "../components/common/ErrorState";
 import { LoadingState } from "../components/common/LoadingState";
@@ -33,8 +34,11 @@ function apiMessage(error: unknown): string {
  */
 export default function Assessment() {
   const { learnerId, targetCareer, hoursPerWeek } = useLearner();
+  const [searchParams] = useSearchParams();
   const [stage, setStage] = useState<Stage>({ name: "landing" });
-  const [skillId, setSkillId] = useState<string>("");
+  // Deep link (e.g. Skills → Take Assessment). Falls back to the first open
+  // gap; the backend validates the skill when the quiz starts.
+  const [skillId, setSkillId] = useState<string>(() => searchParams.get("skill") ?? "");
   const [numQuestions, setNumQuestions] = useState<number>(5);
   const [questionIndex, setQuestionIndex] = useState(0);
   const [answers, setAnswers] = useState<Map<string, number>>(new Map());

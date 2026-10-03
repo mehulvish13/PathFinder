@@ -1,4 +1,5 @@
 import { useCallback, useMemo, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import { EmptyState } from "../components/common/EmptyState";
 import { ErrorState } from "../components/common/ErrorState";
 import { MasteryHistory } from "../components/skills/MasteryHistory";
@@ -46,7 +47,12 @@ function endpointErrorInfo(error: Error, what: string): { title: string; message
  */
 export default function Skills() {
   const { learnerId, targetCareer, hoursPerWeek } = useLearner();
-  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [searchParams] = useSearchParams();
+  // Deep link (e.g. Roadmap → View Skill). Unknown ids fall back to the
+  // default selection below — the backend remains the source of truth.
+  const [selectedId, setSelectedId] = useState<string | null>(
+    () => searchParams.get("skill"),
+  );
   const [filter, setFilter] = useState<SkillFilter>("all");
 
   const path = useAsync<AdaptationResult>(

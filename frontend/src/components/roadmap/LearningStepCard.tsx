@@ -113,6 +113,12 @@ export function LearningStepCard({
       <div className="row" style={{ marginTop: 8 }}>
         <Link
           className="button button--secondary button--small"
+          to={`/skills?skill=${encodeURIComponent(step.skill_id)}`}
+        >
+          View Skill
+        </Link>
+        <Link
+          className="button button--secondary button--small"
           to={`/tutor?skill=${encodeURIComponent(step.skill_id)}&ask=${encodeURIComponent(
             `Why is ${humanizeSkillId(step.skill_id)} in my roadmap?`,
           )}`}
@@ -148,9 +154,6 @@ export function LearningStepCard({
               );
             })}
           </ul>
-          <Link className="button button--secondary button--small" to="/skills">
-            Review Skills
-          </Link>
         </div>
       ) : null}
 

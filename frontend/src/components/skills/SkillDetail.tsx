@@ -197,7 +197,10 @@ export function SkillDetail({ row, history, career }: SkillDetailProps) {
 
       {row.state === "gap" ? (
         <div className="row" style={{ marginTop: 14 }}>
-          <Link className="button" to="/assessment">
+          <Link
+            className="button"
+            to={`/assessment?skill=${encodeURIComponent(row.skill_id)}`}
+          >
             Take Assessment
           </Link>
           <Link className="button button--secondary" to="/roadmap">
