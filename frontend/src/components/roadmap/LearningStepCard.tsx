@@ -110,6 +110,17 @@ export function LearningStepCard({
         </p>
       ) : null}
 
+      <div className="row" style={{ marginTop: 8 }}>
+        <Link
+          className="button button--secondary button--small"
+          to={`/tutor?skill=${encodeURIComponent(step.skill_id)}&ask=${encodeURIComponent(
+            `Why is ${humanizeSkillId(step.skill_id)} in my roadmap?`,
+          )}`}
+        >
+          Ask AI
+        </Link>
+      </div>
+
       {blocked && prereqs.length > 0 ? (
         <div className="prereq-chain">
           <span className="metric__label">Blocked by prerequisites</span>
