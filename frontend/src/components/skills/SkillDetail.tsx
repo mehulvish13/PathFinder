@@ -203,6 +203,14 @@ export function SkillDetail({ row, history, career }: SkillDetailProps) {
           <Link className="button button--secondary" to="/roadmap">
             View Roadmap
           </Link>
+          <Link
+            className="button button--secondary button--small"
+            to={`/tutor?skill=${encodeURIComponent(row.skill_id)}&ask=${encodeURIComponent(
+              `Why am I learning ${humanizeSkillId(row.skill_id)}?`,
+            )}`}
+          >
+            Ask AI
+          </Link>
         </div>
       ) : null}
     </section>
