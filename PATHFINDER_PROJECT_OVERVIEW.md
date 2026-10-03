@@ -1,6 +1,6 @@
 # 🧠 PathFinder Project Overview
 
-> **Status (2026-10-03): Phases 8A-8D on `main` -- React foundation + dashboard + roadmap + skills workspace, all on real backend data. Next: Phase 8E Assessment UI.**
+> **Status (2026-10-03): Phases 8A–8G + Phase 9 merged — full React app (foundation + dashboard + roadmap + skills + assessment + tutor + adaptive links), backend sweep 14/14 green. Phase 10A deployment research LOCKED — Vercel + Render + Neon. Next: Phase 10B inspect DB layer → env-aware Postgres config.**
 
 ## 🔥 What Makes PathFinder Different
 
@@ -180,6 +180,30 @@ sequenceDiagram
 ```
 
 ---
+
+## 🚀 Locked Deployment Architecture (Phase 10A, 2026-10-03)
+
+Free/no-card-friendly production boundary — local stays SQLite, deployed uses Postgres. Business logic untouched.
+
+```text
+GitHub → Vercel (React+Vite dist) ──HTTPS──► Render Free (FastAPI, $PORT, /health)
+                                                  ├──► Neon Free Postgres (0.5 GB, 100 CU-hrs, scale-to-zero 5 min)
+                                                  ├──► Gemini (primary)
+                                                  └──► Groq (fallback)
+```
+
+```text
+LOCAL:  FastAPI → SQLite (pathfinder.db)
+DEPLOYED: FastAPI → Neon Postgres (DATABASE_URL)
+```
+
+Why: Render Free has an ephemeral filesystem — SQLite is lost on redeploy/restart/spin-down, and Free cannot attach disks. Cold start ~1 min after 15 min idle (demo disclosure). Secrets (`GEMINI_API_KEY`, `GROQ_API_KEY`, `DATABASE_URL`) live in host env vars; CORS via `CORS_ORIGINS`. V1 guard: no auth/mobile/Qdrant/RAG-overhaul/k8s/microservices.
+
+Demo cause → effect that Phase 10 must prove:
+
+```text
+Assessment → Mastery changes → Gap changes → Roadmap changes → AI explains why
+```
 
 ## 🚀 Quick Reference: Your Project Priorities
 

@@ -1,5 +1,14 @@
 # PathFinder
-ongoing 8th
+
+> **Status (2026-10-03): Phases 8A–8G + Phase 9 merged; Phase 10A deployment research LOCKED (Vercel + Render + Neon). Source of truth: root `README.md` (8E Assessment UI `77ee47d`, 8F Tutor UI `47a5d21`, 8G adaptive links `c7a1551`, Phase 9 `03d6eb2`, Phase 10A workflows + architecture). This mirror retains history below; see root README for the full 8E–10A sections.**
+>
+> ```text
+> GitHub → Vercel (frontend) ──HTTPS──► Render (FastAPI) ──┬──► Neon Postgres (0.5 GB Free)
+>                                                          ├──► Gemini (primary)
+>                                                          └──► Groq (fallback)
+> LOCAL: FastAPI → SQLite | DEPLOYED: FastAPI → Neon
+> ```
+
 AI-Powered Personalized Learning Path Recommender
 
 ## 🟢 PHASE 6 — Adaptive Roadmap Recalculation (2026-10-01, `39d5875`)

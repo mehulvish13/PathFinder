@@ -338,6 +338,23 @@ Assessment changes the plan, not just the profile: RAG 30→79 clears it from ga
 
 `backend/docs/INTERVIEW_PREP_COMMIT7.md`.
 
+## 14. Phases 8E–9 Addendum — Assessment UI + Tutor UI + Adaptive Links + Testing Polish (2026-10-03)
+
+### What changed
+
+- **8E (`77ee47d`, PR #5)** — `AssessmentLanding`/`AssessmentSession`/`AssessmentResult` on `POST /api/assessment/start|submit` + `GET /{id}/result`; answers never pre-leaked; post-submit refresh surfaces mastery/gap change.
+- **8F (`47a5d21`, PR #6)** — `ChatThread`/`Composer`/`Tutor.tsx` on Phase 7 chat/explain endpoints; roadmap + skills deep-link into `/tutor?skill=<id>`; LLM explains only.
+- **8G (`c7a1551`, PR #7)** — skill-context params across `/skills` ↔ `/assessment` ↔ `/roadmap` ↔ `/tutor`; `cleared_skills` + next action visible without manual reload. Backend untouched (prereq key-mismatch ticket carried).
+- **Phase 9 (`03d6eb2`, PR #8)** — 14/14 backend sweep green + Phase 6 10/10 + Phase 7 4/4; removed dead duplicate `services/skill_gap_service.py`.
+
+### Why it matters
+
+Profile → gaps → path → assessment → mastery → adaptation → explanation is now one clickable journey a judge can follow, not isolated pages.
+
+## 15. Phase 10A Addendum — Deployment Research Locked (2026-10-03)
+
+Locked free/no-card prod boundary: Vercel (static dist) → Render Free (FastAPI `$PORT`, `/health`) → Neon Free Postgres (0.5 GB, 100 CU-hrs) + Gemini/Groq; local stays SQLite via `DATABASE_URL`. Render Free ephemeral FS ⇒ SQLite unsafe on Render (lost on restart; no disks on Free). CORS via `CORS_ORIGINS`; secrets in host env only. Next: 10B inspect `database.py`/models/seed → env-aware config → safe migrate → deploy. Full workflows + diagrams: root `README.md` Phase 10A section.
+
 ## 9. Git
 
 After verification:

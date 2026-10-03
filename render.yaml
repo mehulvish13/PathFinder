@@ -1,7 +1,9 @@
 # PathFinder backend on Render (free tier, no card required).
 # Blueprint: https://render.com/docs/blueprint-spec
-# Dashboard steps: New → Blueprint → select repo → set GEMINI_API_KEY +
-# CORS_ORIGINS (your Vercel URL) → Apply.
+# Dashboard steps: New → Blueprint → select repo → set DATABASE_URL
+# (Neon PostgreSQL) + GEMINI_API_KEY + CORS_ORIGINS (your Vercel URL) → Apply.
+# NOTE: production must use Neon PostgreSQL via DATABASE_URL, not SQLite
+# (Render's free filesystem is ephemeral).
 services:
   - type: web
     name: pathfinder-api
@@ -14,6 +16,8 @@ services:
       - key: PYTHON_VERSION
         value: 3.13.0
       - key: GEMINI_API_KEY
+        sync: false
+      - key: DATABASE_URL
         sync: false
       - key: CORS_ORIGINS
         sync: false

@@ -1666,8 +1666,29 @@ React + Vite + TS shell (8A c84d2db) consuming the FastAPI backend via centraliz
 - 8B dashboard (cd98c87): header, summary cards, current focus, skill gaps, roadmap preview, milestones, next action, quick actions. Sources: dashboard + recalculate endpoints.
 - 8C roadmap (2d71160, PR #3): full phased roadmap, milestones, step cards with prerequisites/resources, Mark Complete via progress/complete. Live proof: completion drove mastery 0->10 and recalculated gap 75->65.
 - 8D skills (d45db02, PR #4): skill list/detail joined from recalculate + recorded mastery + mastery_history (no second gap engine); quiz-sourced events labeled Assessment. Live proof: 100% RAG quiz drove mastery 0->70, gap 75->5.
+- 8E assessment UI (77ee47d, PR #5): AssessmentLanding (skill picker + start) + AssessmentSession (single-question flow + submit) + AssessmentResult (percentage, previous/new_mastery, gap_before/gap_after, ready|needs_work); start→submit→result against Phase 5 endpoints, answers never pre-leaked.
+- 8F tutor UI (47a5d21, PR #6): ChatThread + Composer + Tutor page on Phase 7 chat/explain endpoints; roadmap LearningStepCard + skills SkillDetail deep-link into /tutor?skill=<id>; LLM explains only, engines stay authoritative.
+- 8G adaptive links (c7a1551, PR #7): skill-context params across /skills ↔ /assessment ↔ /roadmap ↔ /tutor; post-quiz refresh surfaces cleared_skills + next action.
 - Verified each phase: typecheck + build green; Phase 6 10/10, Phase 7 4/4; routes serve 200 with live data. Backend production logic untouched.
 - Known backend ticket (8G): generate_learning_path expects target_skill/source_skill keys while load_prerequisites() returns skill_id/prerequisite_skill_id, so blocked steps do not emerge; UIs render them defensively.
+
+## Phase 10A Deployment Platform Research — LOCKED (2026-10-03)
+
+Locked free/no-card architecture: Vercel (React+Vite static dist) → Render Free (FastAPI, uvicorn $PORT, /health) → Neon Free Postgres (0.5 GB/project, 100 CU-hours, scale-to-zero 5 min) + Gemini primary / Groq fallback. Local dev stays SQLite; prod uses DATABASE_URL env-aware config (business logic untouched). CORS via CORS_ORIGINS env; secrets never in git.
+
+```text
+GitHub → Vercel (frontend) ──HTTPS──► Render (FastAPI) ──┬──► Neon Postgres
+                                                         ├──► Gemini
+                                                         └──► Groq
+```
+
+Why not SQLite on Render Free:
+
+```text
+Deploy → SQLite works → restart/spin-down → data disappears (ephemeral FS, no disks on Free)
+```
+
+Execution order: 10A freeze+research (DONE) → 10B inspect DB layer → 10C architecture (LOCKED) → 10D backend → 10E frontend → 10F connect → 10G secrets → 10H persistence → 10I smoke (GET /health + Profile→Path→Progress→Assessment→Adaptation→Tutor; /dashboard /roadmap /skills /assessment /tutor on deployed API) → 10J demo learner/reset → 10K docs → 10L screenshots → 10M 3–5 min video (Assessment→Mastery→Gap→Roadmap→AI explains) → 10N submission package → 10O regression → DONE. V1 scope guard: no auth/mobile/Qdrant/RAG-overhaul/k8s/microservices/crawler/new-ML-model/admin/redesign.
 
 ## Phase 9 Testing + Polish (2026-10-03)
 
@@ -1675,3 +1696,13 @@ React + Vite + TS shell (8A c84d2db) consuming the FastAPI backend via centraliz
 - Removed dead duplicate backend/app/services/skill_gap_service.py (byte-identical to services/skills copy; zero importers).
 - Prereq key-mismatch experiment (sandbox copy): accepting skill_id/prerequisite_skill_id keeps suite 10/10 but flips fresh-learner path 26-ready/0-blocked to 5-ready/21-blocked (single-sweep ordering, no topological pass). Behavior-changing, deferred to a product decision, not applied.
 - Convention: run backend suites from an empty CWD (sqlite URL is CWD-relative); never run twice against the same scratch DB (test_2 asserts exact row counts).
+
+## Phase 10 Production Readiness (2026-10-03, code complete)
+
+- database.py: DATABASE_URL env wins, unset -> absolute backend/pathfinder.db (no CWD-relative SQLite), postgres:// normalized to postgresql://, check_same_thread only for SQLite, pool_pre_ping, get_db contract unchanged.
+- requirements.txt: + psycopg2-binary==2.9.13. Models audited Postgres-portable (no JSON cols, func.now(), string JSON blobs OK). No Alembic.
+- backend/.env.example created (DATABASE_URL/GEMINI_API_KEY/CORS_ORIGINS, names only). render.yaml: + DATABASE_URL env var, note Neon required (no SQLite on Render free).
+- Removed tracked empty junk backend/requirements.txt.txt.
+- Verified: Phase 7 4/4 PASS; Phase 6 13 pass + 1 known documented contamination failure (n==9 row count on shared DB); frontend typecheck PASS; build PASS; uvicorn boots, /health healthy; postgres:// import normalizes; git grep: no secrets in tracked files.
+- Gemini-only in code (no Groq wired). Frontend VITE_API_BASE_URL + vercel.json SPA rewrite already in place. Manual steps pending: Neon DB, Render blueprint apply, Vercel deploy, deployed smoke test, screenshots, demo video, submission package.
+

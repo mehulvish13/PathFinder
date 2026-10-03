@@ -1,6 +1,28 @@
 # 🚀 PathFinder — Future Roadmap
 
-## 📋 Current Status (Phase 6, 2026-10-01, `39d5875`)
+## 📋 Current Status (Phase 10A, 2026-10-03) — LOCKED
+
+**Deployment platform research complete — Vercel + Render + Neon:**
+
+- ✅ Frontend: Vercel (static `frontend/dist/`, SPA rewrite, `VITE_API_BASE_URL` → Render URL)
+- ✅ Backend: Render Free (`rootDir: backend`, `uvicorn app.main:app --host 0.0.0.0 --port $PORT`, `/health`; 750 hrs/mo, 15-min idle spin-down, ~1 min cold start)
+- ✅ Database: Neon Free Postgres for prod (0.5 GB/project, 100 CU-hours, scale-to-zero 5 min, no card); local stays SQLite via env-aware `DATABASE_URL`
+- ✅ AI: Gemini primary + Groq fallback via provider abstraction; keys in host env only
+- ✅ CORS: env-driven `CORS_ORIGINS` (local defaults + deployed Vercel origin); never `["*"]`
+- ✅ Why not SQLite on Render Free: ephemeral FS loses SQLite on redeploy/restart/spin-down; Free cannot attach disks
+
+```text
+GitHub → Vercel ──HTTPS──► Render (FastAPI) ──┬──► Neon Postgres
+                                              ├──► Gemini
+                                              └──► Groq
+LOCAL: FastAPI → SQLite | DEPLOYED: FastAPI → Neon
+```
+
+**Execution order:** 10A research (DONE) → 10B inspect DB layer → 10C architecture (LOCKED) → 10D backend → 10E frontend → 10F connect → 10G secrets → 10H persistence → 10I smoke (`GET /health` + Profile→Path→Progress→Assessment→Adaptation→Tutor) → 10J demo learner/reset → 10K docs → 10L screenshots → 10M 3–5 min video (Assessment→Mastery→Gap→Roadmap→AI explains) → 10N submission package → 10O regression → DONE. V1 guard: no auth/mobile/Qdrant/RAG-overhaul/k8s/microservices.
+
+**History:** Phase 9 (`03d6eb2`, PR #8) — 14/14 backend sweep green + dead-code removal. Phases 8E–8G — assessment UI (`77ee47d`), tutor UI (`47a5d21`), adaptive deep links (`c7a1551`). Phase 7 — AI tutor backend. Phase 6 (`39d5875`) below.
+
+---
 
 **Adaptive Roadmap committed — assessment now changes the sequence:**
 - ✅ `POST /api/adaptation/recalculate` (latest mastery → gap/recommend/path/roadmap + `cleared_skills`)
@@ -257,19 +279,26 @@ Predictive Recommendations
 
 ## 🛠️ Technical Roadmap
 
-### Immediate (Phase 7 → 8)
+### Immediate (Phase 9 → 10B)
 - [x] Assessment system with skill mapping (done — Phase 5)
 - [x] Mastery calculation service (done — 30/70 blend, Phase 5)
 - [x] Path adaptation logic (done — Phase 6 orchestration + `cleared_skills`)
 - [x] AI explanation endpoints (done — Phase 7 tutor routes + regression)
 - [x] Demo UI foundation (done — React 8A shell, 8B dashboard, 8C roadmap, 8D skills)
+- [x] Assessment UI + Tutor UI + adaptive links (done — 8E `77ee47d`, 8F `47a5d21`, 8G `c7a1551`)
+- [x] Testing + polish freeze check (done — Phase 9 `03d6eb2`, 14/14 sweep)
+- [x] Deployment platform research (done — Phase 10A locked: Vercel + Render + Neon)
+- [ ] DB-layer inspection + env-aware SQLite/Postgres config (next — Phase 10B)
 
 ### Done since this list was written (Commit 5)
 - [x] Gemini profile extraction (`POST /api/profile/extract`)
 - [x] Resource recommendation engine (Commit 4)
 - [x] Basic progress tracking + dashboard (Commit 5)
 
-### Short-term (V2)
+### Short-term (V2 — Deployment)
+- [x] Deployment architecture locked (Phase 10A: Vercel + Render + Neon, SQLite-local/Postgres-prod)
+- [ ] Render backend deploy + Vercel frontend deploy + Neon wiring (Phases 10D–10H)
+- [ ] Deployed smoke + demo learner/reset + docs/screenshots/video/submission (Phases 10I–10N)
 - [ ] Groq fallback provider (currently Gemini-only; swap documented in `llm_service.py`)
 - [x] Natural language profile extraction (done — Commit 3)
 - [x] Resource recommendation engine (done — Commit 4)

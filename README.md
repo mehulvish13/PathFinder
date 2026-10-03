@@ -69,6 +69,143 @@ Scripts: `npm run dev`, `npm run build` (typechecks with `tsc -b` then builds), 
 
 **Verified 2026-10-03 (Phase 8D)**: `npm run typecheck` ✅, `npm run build` ✅ (77 modules), `/skills` serves HTTP 200 (26 tracked skills joined live); Phase 6 regression 10/10, Phase 7 regression 4/4. Merged via PR #4.
 
+---
+
+## 🟢 PHASE 8E — Assessment UI (`77ee47d`, PR #5)
+
+**Status**: Interactive `/assessment` flow ✅ — learner picks a skill, takes a quiz, sees mastery change. No answer leaking in UI before submit; result replays stored aggregates.
+
+- **Components** (`frontend/src/components/assessment/`): `AssessmentLanding` (skill picker + start), `AssessmentSession` (one-question-at-a-time, progress, submit), `AssessmentResult` (`percentage`, `previous/new_mastery`, `gap_before/gap_after`, `ready|needs_work` + per-question feedback).
+- **Data sources**: `POST /api/assessment/start` → `POST /api/assessment/submit` → `GET /api/assessment/{id}/result`. Refreshes dashboard/skills/roadmap after submit so adaptation is visible.
+- **Backend change**: none.
+
+**Verified 2026-10-03 (Phase 8E)**: `npm run typecheck` ✅, `npm run build` ✅, `/assessment` serves HTTP 200; Phase 6 regression 10/10, Phase 7 regression 4/4.
+
+---
+
+## 🟢 PHASE 8F — AI Tutor UI (`47a5d21`, PR #6)
+
+**Status**: Conversational `/tutor` experience ✅ — asks backend-grounded questions, explains roadmap decisions from actual learner state. Tutor never invents gaps/mastery.
+
+- **Components** (`frontend/src/components/tutor/`): `ChatThread` (message list, loading/error states), `Composer` (input + send, retries). `frontend/src/pages/Tutor.tsx` owns session state.
+- **Deep links in**: `LearningStepCard` (roadmap) + `SkillDetail` (skills) link into `/tutor?skill=<id>` with skill context, so "Why am I learning Vector DB?" carries real state.
+- **Data sources**: AI tutor `chat` + `explain` endpoints (Phase 7 backend). Deterministic engines stay authoritative; LLM only explains.
+- **Backend change**: none.
+
+**Verified 2026-10-03 (Phase 8F)**: `npm run typecheck` ✅, `npm run build` ✅, `/tutor` serves HTTP 200; Phase 6 regression 10/10, Phase 7 regression 4/4.
+
+---
+
+## 🟢 PHASE 8G — Adaptive Journey Links (`c7a1551`, PR #7)
+
+**Status**: Assessment → Skills → Roadmap → Tutor connected ✅ — one adaptive journey, not isolated pages.
+
+- **What changed**: skill-context query params preserved across `/skills` ↔ `/assessment` ↔ `/roadmap` ↔ `/tutor`; post-quiz refresh surfaces `cleared_skills` + updated next action without manual reload.
+- **Files**: `LearningStepCard.tsx`, `SkillDetail.tsx`, `Assessment.tsx`, `Skills.tsx` (deep-link params only).
+- **Backend change**: none. Known ticket carried: `generate_learning_path` reads `target_skill`/`source_skill` while `load_prerequisites()` returns `skill_id`/`prerequisite_skill_id`, so `blocked` steps don't emerge; UIs render defensively.
+
+**Verified 2026-10-03 (Phase 8G)**: `npm run typecheck` ✅, `npm run build` ✅; Phase 6 regression 10/10, Phase 7 regression 4/4.
+
+---
+
+## 🟢 PHASE 9 — Testing + Polish (`03d6eb2`, PR #8)
+
+**Status**: Full-stack freeze check ✅ — backend sweep green, dead code removed, deployment unblocked.
+
+- **Backend sweep 14/14**: profile, path, progress ×6, assessment ×3, adaptation, tutor, explain + Phase 6 10/10 + Phase 7 4/4 + full RAG journey green; all routes serve 200.
+- **Cleanup**: removed dead duplicate `backend/app/services/skill_gap_service.py` (byte-identical to `services/skills/` copy; zero importers).
+- **Deferred (product decision, not applied)**: prereq key-mismatch experiment in sandbox keeps suite 10/10 but flips fresh-learner path 26-ready/0-blocked → 5-ready/21-blocked (single-sweep ordering, no topological pass).
+- **Convention**: SQLite lives at `backend/pathfinder.db` (absolute, CWD-independent since Phase 10); set `DATABASE_URL` to a PostgreSQL URL for production-like runs; never run row-count tests twice against the same scratch DB.
+
+---
+
+## 🚀 PHASE 10A — Deployment Platform Research (LOCKED 2026-10-03)
+
+**Status**: Research complete ✅ — no code changed yet. Next: 10B inspect DB layer → env-aware SQLite-local/Postgres-prod config → migrate safely → deploy.
+
+**Locked architecture (free/no-card-friendly):**
+
+```text
+                    ┌─────────────────────┐
+                    │      GitHub         │
+                    │  mehulvish13/       │
+                    │     PathFinder      │
+                    └──────────┬──────────┘
+                               │
+                 ┌─────────────┴─────────────┐
+                 │                           │
+                 ▼                           ▼
+          ┌──────────────┐            ┌──────────────┐
+          │    Vercel    │            │    Render    │
+          │              │            │              │
+          │ React + Vite │  HTTPS     │   FastAPI    │
+          │              │───────────►│              │
+          └──────────────┘            └──────┬───────┘
+                                             │
+                              ┌──────────────┼──────────────┐
+                              │              │              │
+                              ▼              ▼              ▼
+                           Neon          Gemini          Groq
+                         PostgreSQL       Primary        Fallback
+```
+
+- **Frontend**: Vercel (static `frontend/dist/` from `npm run build`; SPA rewrite via `frontend/vercel.json`; `VITE_API_BASE_URL` points at Render URL — never hardcode localhost in prod).
+- **Backend**: Render Free (`rootDir: backend`, `pip install -r requirements.txt`, `uvicorn app.main:app --host 0.0.0.0 --port $PORT`, `healthCheckPath: /health`; see `render.yaml`). 750 hrs/month, spins down after 15 min idle, ~1 min cold start — acceptable for demo, must be disclosed.
+- **Database**: Neon Free PostgreSQL for deployed env (0.5 GB/project, 100 CU-hours, scale-to-zero 5 min, no card — plenty for learners/skills/progress/mastery/assessments/activities). Local dev stays SQLite. `DATABASE_URL` + `psycopg` env-aware config required; business logic untouched.
+- **AI**: Gemini primary + Groq fallback preserved via existing provider abstraction; keys only in host env vars (`GEMINI_API_KEY`, `GROQ_API_KEY`), never in git.
+- **CORS**: env-driven (`CORS_ORIGINS` in `backend/app/main.py` + `render.yaml`) — local origins by default, deployed Vercel origin appended in prod; never `allow_origins=["*"]`.
+
+**Why not SQLite on Render Free:**
+
+```text
+FastAPI → SQLite → Render Free  ❌ UNSAFE
+Deploy → SQLite works → service restarts/spins down → SQLite data disappears
+```
+
+Render docs: Free web services have an ephemeral filesystem — local SQLite lost on redeploy/restart/spin-down. Free services cannot attach persistent disks. Render Postgres Free expires after 30 days, so Neon is the persistent choice. Koyeb Free has the same no-persistent-volume + scale-to-zero issue. Railway is trial-credit only — excluded.
+
+**Supabase vs Neon:** Supabase Free viable (500 MB, 5 GB egress) but pauses after 1 week idle + bundles unneeded platform; Neon simpler for pure Postgres persistence.
+
+**Phase 10 execution order:**
+
+```text
+10A  Clean + freeze repository (DONE — research locked)
+        ↓
+10B  Inspect production configuration (DB layer: database.py, models, seed, env)
+        ↓
+10C  Choose deployment architecture (LOCKED above)
+        ↓
+10D  Deploy backend (Render)
+        ↓
+10E  Deploy frontend (Vercel)
+        ↓
+10F  Connect frontend ↔ backend (VITE_API_BASE_URL + CORS_ORIGINS)
+        ↓
+10G  Configure Gemini/Groq/DATABASE_URL secrets
+        ↓
+10H  Verify Postgres persistence (restart-safe demo learner)
+        ↓
+10I  Full deployed smoke test (GET /health → Profile → Path → Progress → Assessment → Adaptation → Tutor; /dashboard /roadmap /skills /assessment /tutor on deployed API)
+        ↓
+10J  Prepare demo learner/reset (GenAI Engineer, Intermediate, Python+ML known; LLM/Embeddings/VectorDB/RAG gaps; Reset Demo)
+        ↓
+10K  README + architecture docs
+        ↓
+10L  Screenshots (dashboard, roadmap, skill, assessment, mastery change, updated roadmap, tutor)
+        ↓
+10M  Demo video 3–5 min (cause → effect: Assessment → Mastery → Gap → Roadmap → AI explains why)
+        ↓
+10N  Submission package (source zip + PDFs + mp4 + screenshots + README)
+        ↓
+10O  Final regression
+        ↓
+🏁 PATHFINDER COMPLETE
+```
+
+**Phase 10 scope guard (V1):** ❌ Authentication, mobile app, Qdrant, RAG overhaul, Kubernetes, microservices, resource crawler, new ML recommender, admin dashboard, major UI redesign.
+
+---
+
 ### Backend setup
 
 ```bash
@@ -78,6 +215,57 @@ uvicorn app.main:app --reload   # http://127.0.0.1:8000
 ```
 
 **Ports**: backend `127.0.0.1:8000` (API docs at `/docs`), frontend dev server `localhost:5173` (preview `localhost:4173`). The backend CORS config allows these local origins.
+
+---
+
+## 🟢 PHASE 10 — Production Readiness (CODE COMPLETE — manual deploy steps pending)
+
+**Status**: DB config env-aware ✅, PostgreSQL driver added ✅, CORS env-driven ✅ (was already in 8E-era main.py), render.yaml + .env.example ✅, frontend `VITE_API_BASE_URL` + SPA fallback ✅ (already in place). Remaining: create Neon DB, deploy Render + Vercel, smoke-test deployed URLs, screenshots, demo video, submission zip.
+
+**10B/10C — Database config (verified 2026-10-03):**
+
+- `backend/app/db/database.py` now: `DATABASE_URL` env var wins; unset → SQLite at absolute `backend/pathfinder.db` (no more CWD-relative file); `postgres://` normalized to `postgresql://`; `check_same_thread` only applied to SQLite; `pool_pre_ping=True`; engine/session/`Base` unchanged, `get_db()` contract unchanged.
+- Added `psycopg2-binary==2.9.13` to `backend/requirements.txt` (SQLAlchemy 2.0.52 already present).
+- All models audited: `String`/`Float`/`Integer`/`DateTime`/`func.now()`, JSON stored as `String` text (`assessment_attempts.question_ids`), no SQLite-only SQL — portable to PostgreSQL as-is. No Alembic introduced (create_all is sufficient for V1).
+- AI provider: Gemini only in code (`LLMService.generate_tutor_response` + `extract_learner_profile`); keys via `backend/.env` / host env vars, never frontend. Groq fallback noted in docs but not implemented in code.
+
+**Verification run 2026-10-03:**
+
+```text
+Phase 7 AI tutor suite:  4/4 PASS
+Phase 6 adaptation:      13 passed, 1 failed (test_2_mastery_history_still_works —
+                         known CWD/persistent-row-count contamination, documented,
+                         NOT a new failure; n==9 vs expected 1 on shared backend DB)
+Frontend typecheck:      PASS
+Frontend production build: PASS (dist/, 242.80 kB JS)
+uvicorn app.main:app:    boots, GET /health → {"status":"healthy"} ✅
+postgres:// URL import:  normalizes to postgresql://, driver resolves ✅
+Secret scan (git grep):  no keys/tokens in tracked files ✅
+```
+
+**Manual steps remaining (require your accounts — cannot be automated here):**
+
+1. **Neon**: create project → copy PostgreSQL connection string → set as `DATABASE_URL` on Render (append `?sslmode=require` if not present).
+2. **Render**: Dashboard → New → Blueprint → select `mehulvish13/PathFinder` → set `DATABASE_URL`, `GEMINI_API_KEY`, `CORS_ORIGINS=https://<your-app>.vercel.app` → Apply. Backend URL: `https://pathfinder-api-<hash>.onrender.com`, verify `GET /health`.
+3. **Vercel**: Import repo → Root Directory `frontend` → env `VITE_API_BASE_URL=https://<render-url>` → Deploy. `vercel.json` already rewrites all routes to `index.html` (SPA deep links work).
+4. **Smoke test** the deployed pair: `/health`, profile create, path generate, dashboard, assessment start/submit, adaptation recalculate, AI tutor "Why did my roadmap change?".
+5. **Demo flow** (3–5 min): profile → skill gaps → roadmap → RAG skill → assessment → mastery change → updated roadmap → ask AI tutor why → architecture slide.
+6. **Submission package**: `PathFinder-Submission/{source,documentation,screenshots,demo}` per brief.
+
+**Architecture (unchanged, now deployed):**
+
+```text
+React/Vite (Vercel)
+      ↓ HTTPS
+FastAPI (Render)
+      ↓
+Deterministic engines (gaps · prereqs · roadmap · mastery · adaptation)
+      ↓
+Neon PostgreSQL        Gemini (primary) / Groq (documented fallback)
+
+LLM explains ← never decides (gaps, mastery, roadmap order, priorities
+come from the deterministic backend).
+```
 
 ---
 
